@@ -1,0 +1,16 @@
+[book]
+title = "Documentation for the MSB1013 Computational Neuroscience group project"
+authors = ["Chris Damour"]
+description = "A place to keeep track of the project and documentation related to the different sections of the project"
+
+[rust]
+edition = "2018"
+
+[output.html.search]
+limit-results = 20
+use-boolean-and = true
+boost-title = 2
+boost-hierarchy = 2
+boost-paragraph = 1
+expand = true
+heading-split-level = 2
