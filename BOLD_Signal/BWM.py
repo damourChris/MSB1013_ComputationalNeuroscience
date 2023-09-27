@@ -33,8 +33,8 @@ def balloon_windkessel(neural_activity, dt=0.1,
         ds = dt * (-s[t - 1] / tau_s + neural_activity[t - 1])  # neural activity
         df = dt * (s[t - 1] - f[t - 1]) / tau_f  # vasodilatory signal
         dv = dt * ((f[t - 1] - v[t - 1] ** (1 / alpha)) / tau)  # blood volume
-        dq = dt * ((f[t - 1] * (1 - (1 - E_0) ** (1 / f[t - 1])) - (v[t - 1] ** (1 - alpha) * q[t - 1]) / v[
-            t - 1]) / tau)  # deoxyhemoglobin
+        # TODO: we get a RuntimeWarning (divide by zero) here, looks like v[t-1] is the reason
+        dq = dt * ((f[t - 1] * (1 - (1 - E_0) ** (1 / f[t - 1])) - (v[t - 1] ** (1 - alpha) * q[t - 1]) / v[t - 1]) / tau)  # deoxyhemoglobin
 
         s[t] = s[t - 1] + ds
         f[t] = f[t - 1] + df
