@@ -7,23 +7,26 @@ import torch
 from utils import pairplot, marginal_correlation
 
 def sample_posterior(
-        model = "models/posterior.pt",
         obs_x,
         obs_theta,
-        stats,
+        model = "models/posterior.pt",
         num_samples = 100000,
         save_plot= True,
         plot_dir = "plot_images"
-)
+    ):
 
     # mean, cov, cor, eigvals, eigvecs, lyap = statistics(x_t)
     
     # obs_x = np.concatenate([mean, cov.flatten(), cor.flatten()])
     # obs_theta = [sigma, beta, rho]
 
-    # Load posterior.
-    posterior = torch.load(model)
-
+    # Load posterior. If model is a string, load with torch otherwise assume it is already a torch model 
+    #   - ideally would want to check the type aswell and throw an error if the type doesnt match str or Torch model 
+    if isinstance(model, str)
+        posterior = torch.load(model)
+    else 
+        posterior = model
+        
     # Set true value ? 
     posterior.set_default_x(obs_x)
     
@@ -38,9 +41,9 @@ def sample_posterior(
         figsize = (10, 10)
     )
     
-    if(save_plot){
+    if save_plot:
         plt.savefig("png/pairplot.png")
-    }
+    
     
     fig, ax = marginal_correlation(
         samples = posterior_samples,
@@ -48,9 +51,7 @@ def sample_posterior(
         figsize = (10, 10)
     )
 
-    if(save_plot){
+    if save_plot:
         plt.savefig("png/marginal_correlation.png")
-    }
-
 
     # import IPython; IPython.embed();
