@@ -14,7 +14,7 @@ def balloon_windkessel(neural_activity, dt=0.1,
     :param dt: float, the time step
     :param tau: float, the hemodynamic transit time
     :param alpha: float, the Grubb's exponent
-    :param E_0: float, the resting oxygen extraction fraction
+    :param E_0: float, the resting oxygen extraction fraction, also called rho
     :param V_0: float, the resting blood volume fraction
     :param k1, k2, k3: floats, the BOLD signal coefficients
     :param tau_s: float, the time constant for the signal decay
