@@ -1,12 +1,13 @@
 import numpy as np
 
 
-# TODO: check wether default values are appropriate
+# TODO: check whether default values are appropriate
 def balloon_windkessel(neural_activity, dt=0.1,
                        tau=0.98, alpha=0.32,
                        E_0=0.34, V_0=0.02,
-                       k1=7, k2=2, k3=2,
                        tau_s=0.8, tau_f=0.4):
+    # alpha is 0.2 in Friston 2000
+    # E_0 is 0.8 in Friston 2000 but also 0.34 in neurolib
     """
     Simulates the BOLD response using the Balloon-Windkessel model.
     
@@ -16,12 +17,15 @@ def balloon_windkessel(neural_activity, dt=0.1,
     :param alpha: float, the Grubb's exponent
     :param E_0: float, the resting oxygen extraction fraction, also called rho
     :param V_0: float, the resting blood volume fraction
-    :param k1, k2, k3: floats, the BOLD signal coefficients
     :param tau_s: float, the time constant for the signal decay
     :param tau_f: float, the time constant for the signal rise
+    :param epsilon: float, unknown parameter from Friston2000
     
     :return: array-like, the BOLD response over time
     """
+    k1 = 7 * E_0
+    k2 = 2
+    k3 = 2 * E_0 - 0.2
     n_time_points = len(neural_activity)
     s = np.zeros(n_time_points)
     f = np.zeros(n_time_points)
@@ -30,18 +34,20 @@ def balloon_windkessel(neural_activity, dt=0.1,
     bold = np.zeros(n_time_points)
 
     for t in range(1, n_time_points):
-        ds = dt * (-s[t - 1] / tau_s + neural_activity[t - 1])  # neural activity
-        df = dt * (s[t - 1] - f[t - 1]) / tau_f  # vasodilatory signal
-        dv = dt * ((f[t - 1] - v[t - 1] ** (1 / alpha)) / tau)  # blood volume
+        # equations same as in Friston 2000
+        f_out = v[t - 1] ** (1 / alpha)
+        ds = dt * (-s[t - 1] / tau_s + neural_activity[t - 1] - (f[t-1]-1)/tau_f)  # neural activity
+        df = dt * s[t - 1]  # vasodilatory signal
+        dv = dt * ((f[t - 1] - f_out) / tau)  # blood volume
         # TODO: we get a RuntimeWarning (divide by zero) here, looks like v[t-1] is the reason
-        dq = dt * ((f[t - 1] * (1 - (1 - E_0) ** (1 / f[t - 1])) - (v[t - 1] ** (1 - alpha) * q[t - 1]) / v[t - 1]) / tau)  # deoxyhemoglobin
+        dq = dt * (1/tau) * (f[t - 1] * ((1 - (1 - E_0) ** (1 / f[t - 1]))/E_0) - (f_out * q[t - 1]) / v[t - 1]) # deoxyhemoglobin
 
         s[t] = s[t - 1] + ds
-        f[t] = f[t - 1] + df
+        f[t] = max(f[t - 1] + df, 1e-120)
         v[t] = v[t - 1] + dv
         q[t] = q[t - 1] + dq
 
-        bold[t] = v[t] * (k1 + k2) - (k2 / k3) * q[t]
+        bold[t] = V_0 * (k1 * (1 - q[t]) + k2 * (1 - q[t] / v[t]) + k3 * (1 - v[t]))
 
     return bold
 
