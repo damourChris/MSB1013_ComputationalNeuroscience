@@ -56,7 +56,8 @@ def downsample_neural_activity(neural_signal, original_sample_rate=1e-4, target_
 
     :returns: down-sampled neural signal
     """
-    # TODO: think about downsampling method
+    # TODO: think about downsampling method, but in the example we just take the time points less frequently without
+    #  doing mathematical downsampling
     resampling_factor = int(target_sample_rate/original_sample_rate)  # naive assumptions that this works
-    resampled_signal = signal.resample_poly(neural_signal, 1, resampling_factor, padtype='mean', axis=0)
+    resampled_signal = neural_signal[::resampling_factor]
     return resampled_signal
