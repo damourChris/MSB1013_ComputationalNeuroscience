@@ -25,7 +25,28 @@ def combine_inh_exc_abs_sum(Y, layers=4):
         return combine(Y)
 
 
-def downsample_neural_activity(neural_signal, original_sample_rate=1e-4, target_sample_rate=0.1):
+def combine_inh_exc_only_exc(Y, layers=4):
+    """This method just returns the excitatory input from the neural activity
+
+    The returned neural activity is a 4-layer neural signal
+    """
+    def combine(curr_y):
+        combined = np.zeros((curr_y.shape[0], layers))
+        for layer, exc_index in zip(range(0, 4), range(0, 2*layers, 2)):
+            combined[:, layer] = curr_y[:, exc_index]
+        return combined
+
+    if len(Y.shape) == 3:  # multiple simulations
+        combined_Ys = np.zeros((Y.shape[0], Y.shape[1], layers))
+        for i, curr_y in enumerate(Y):
+            combined_y = combine(curr_y)
+            combined_Ys[i] = combined_y
+        return combined_Ys
+    else:  # single simulation
+        return combine(Y)
+
+
+def downsample_neural_activity(neural_signal, original_sample_rate=1e-4, target_sample_rate=0.001):
     """The neural simulation given has a sampling rate of 1e-4 by default. For creating the bold signal, we need to
     down-sample accordingly to a realistic fMRI sample rate
 
