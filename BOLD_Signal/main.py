@@ -18,17 +18,17 @@ def get_simulations(file_name="simulations.npy"):
     return simulations
 
 
-if __name__=='__main__':
+if __name__ == '__main__':
     simulations = get_simulations(file_name="y_results_subset.npy")
     neural_activity = combine_inh_exc_only_exc(simulations[0, :, :])
     current_y = neural_activity[:, 1]
     down_sampled = downsample_neural_activity(neural_activity, original_sample_rate=1e-4, target_sample_rate=0.001)
     bold_signal, _, _, _ = balloon_windkessel(current_y)
     plt.figure(figsize=(10, 5))
-    plt.subplot(2,1,1)
+    plt.subplot(2, 1, 1)
     plt.plot(current_y)
     plt.title('Neural Activity')
-    plt.subplot(2,1,2)
+    plt.subplot(2, 1, 2)
     plt.title('BOLD response')
     plt.plot(bold_signal)
     plt.xlabel('Time')
