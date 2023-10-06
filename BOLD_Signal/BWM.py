@@ -90,41 +90,42 @@ def balloon_windkessel(neural_activity, dt=0.001):
     return bold, f, v, q
 
 
-# Example usage:
-import matplotlib.pyplot as plt
+if __name__ == '__main__':
+    # Example usage:
+    import matplotlib.pyplot as plt
 
-# Create a simple block design neural activity
-t_sim = 50  # in s
-dt = 0.001
-U = np.zeros(int(t_sim / dt))
-U[int(10 / dt):int(15 / dt)] = 1
-x = 0
-X = np.ones(int(t_sim / dt))
-for t in range(int(t_sim / dt)):
-    x = x + dt * (U[t] - x)
-    X[t] = x
+    # Create a simple block design neural activity
+    t_sim = 50  # in s
+    dt = 0.001
+    U = np.zeros(int(t_sim / dt))
+    U[int(10 / dt):int(15 / dt)] = 1
+    x = 0
+    X = np.ones(int(t_sim / dt))
+    for t in range(int(t_sim / dt)):
+        x = x + dt * (U[t] - x)
+        X[t] = x
 
-# Get the BOLD response
-bold, f, v, q = balloon_windkessel(X, dt=0.001)
+    # Get the BOLD response
+    bold, f, v, q = balloon_windkessel(X, dt=0.001)
 
-# Plot the results
-plt.figure(figsize=(5, 10))
-plt.subplot(6, 1, 1)
-plt.plot(U[6000:], lw=3)
-plt.title('Stimulus')
-plt.subplot(6, 1, 2)
-plt.plot(f[6000:])
-plt.title('Cerebral Blood Flow')
-plt.subplot(6, 1, 3)
-plt.plot(v[6000:], lw=3)
-plt.title('Cerebral Blood Volume')
-plt.subplot(6, 1, 4)
-plt.plot(q[6000:], lw=3)
-plt.title('Deoxyhemoglobin Content')
-plt.subplot(6, 1, 5)
-plt.plot(bold[6000:], lw=3)
-plt.title('BOLD Signal')
-plt.xlabel('Time (ms)')
-plt.ylabel('Amplitude')
-plt.legend()
-plt.show()
+    # Plot the results
+    plt.figure(figsize=(5, 10))
+    plt.subplot(6, 1, 1)
+    plt.plot(U[6000:], lw=3)
+    plt.title('Stimulus')
+    plt.subplot(6, 1, 2)
+    plt.plot(f[6000:])
+    plt.title('Cerebral Blood Flow')
+    plt.subplot(6, 1, 3)
+    plt.plot(v[6000:], lw=3)
+    plt.title('Cerebral Blood Volume')
+    plt.subplot(6, 1, 4)
+    plt.plot(q[6000:], lw=3)
+    plt.title('Deoxyhemoglobin Content')
+    plt.subplot(6, 1, 5)
+    plt.plot(bold[6000:], lw=3)
+    plt.title('BOLD Signal')
+    plt.xlabel('Time (ms)')
+    plt.ylabel('Amplitude')
+    plt.legend()
+    plt.show()
