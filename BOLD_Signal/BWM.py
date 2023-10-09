@@ -64,8 +64,8 @@ def balloon_windkessel(neural_activity, dt=0.001):
         yinflow = yinflow + dt * (df_a / xinflow)
         xvaso = yvaso
         xinflow = yinflow
-
         f[t] = np.exp(yinflow)
+    # f = np.nan_to_num(f) # TODO: we should not get nan values
 
     f_out = 0
     curr_v = 1
@@ -87,6 +87,9 @@ def balloon_windkessel(neural_activity, dt=0.001):
 
         bold[t] = theta['V_0'] * (k1 * (1.0 - q[t]) + k2 * (1.0 - q[t] / v[t]) + k3 * (1.0 - v[t]))
 
+    # TODO: remove baseline in smarter way
+    bold = bold - bold[10000]
+    bold[:10000] = 0
     return bold, f, v, q
 
 

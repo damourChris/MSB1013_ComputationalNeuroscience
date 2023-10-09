@@ -84,9 +84,11 @@ def get_betas_from_neural_activity(Y, neural_activity_sampling_rate=1e-4, bold_s
 
     # bold responses for the layers
     X = np.zeros(shape=(sampling_indices.shape[0], neural_activity.shape[1]))
+    bold_responses = np.zeros(shape=neural_activity.shape)
 
     for layer in range(neural_activity.shape[1]):
-        bold, _, _, _ = balloon_windkessel(neural_activity[:, layer])
+        bold, f, v, q = balloon_windkessel(neural_activity[:, layer])
+        bold_responses[:, layer] = bold
         bold = (bold - np.min(bold)) / (np.max(bold) - np.min(bold))  # normalize X between 0 and 1
 
         # sample bold with TR
@@ -99,5 +101,6 @@ def get_betas_from_neural_activity(Y, neural_activity_sampling_rate=1e-4, bold_s
     # scale betas to obtain original signal (Y = X*B)
     B = (np.linalg.pinv(X @ X.T) @ X).T @ Y
     # TODO: I just copied this from Kris' code but I don't understand why we do this
+    print(B)
     B = B[0, :]
-    return B
+    return B, X, bold_responses
