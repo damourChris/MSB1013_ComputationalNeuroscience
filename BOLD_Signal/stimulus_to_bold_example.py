@@ -38,7 +38,7 @@ if __name__ == '__main__':
     plt.plot(X * B)
     plt.xlim([0, len(X) - 1])
     plt.tight_layout()
-    plt.show()
+    plt.savefig('fig/signal_betas_example.pdf', bbox_inches='tight', transparent=True, dpi=300)
 
     plt.figure()
     downsampledY = downsample_neural_activity(Y)
@@ -47,4 +47,4 @@ if __name__ == '__main__':
         plt.plot(bold_responses[:, layer], label="bold")
         plt.plot(downsampledY[:, layer], label="activity")
         plt.legend()
-    plt.show()
+    plt.savefig('fig/bold_neuronal_activity_example.pdf', bbox_inches='tight', transparent=True, dpi=300)
