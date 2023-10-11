@@ -1,6 +1,8 @@
 import numpy as np
+from matplotlib import pyplot as plt
 
 from BOLD_Signal.BWM import balloon_windkessel
+from BOLD_Signal.DMF_model import HRF
 
 
 def combine_inh_exc_abs_sum(Y, layers=4):
@@ -66,7 +68,8 @@ def downsample_neural_activity(neural_signal, original_sample_rate=1e-4, target_
     return resampled_signal
 
 
-def get_betas_from_neural_activity(Y, neural_activity_sampling_rate=1e-4, bold_sample_rate=0.001):
+def get_betas_from_neural_activity(Y, neural_activity_sampling_rate=1e-4, bold_sample_rate=0.001,
+                                   stim_start=10, stim_end=20):
     """For a single simulation
     TODO: extend to make it work on whole array
     """
@@ -83,24 +86,37 @@ def get_betas_from_neural_activity(Y, neural_activity_sampling_rate=1e-4, bold_s
     neural_activity = downsample_neural_activity(neural_activity)
 
     # bold responses for the layers
-    X = np.zeros(shape=(sampling_indices.shape[0], neural_activity.shape[1]))
+    bold_downsampled = np.zeros(shape=(sampling_indices.shape[0], neural_activity.shape[1]))
     bold_responses = np.zeros(shape=neural_activity.shape)
+
+    X = np.zeros((Y.shape[0], 4))
 
     for layer in range(neural_activity.shape[1]):
         bold, f, v, q = balloon_windkessel(neural_activity[:, layer])
         bold_responses[:, layer] = bold
-        bold = (bold - np.min(bold)) / (np.max(bold) - np.min(bold))  # normalize X between 0 and 1
 
         # sample bold with TR
         bold_response = bold[sampling_indices]
-        X[:, layer] = bold_response
+        bold_downsampled[:, layer] = bold_response
 
-    # down-sampled neural activity at fMRI scan acquisition points
-    Y = neural_activity[sampling_indices, :]
+        hrf = HRF(np.arange(0, 40, 1e-3))
+
+        # create condition vector for GLM analysis
+        condition = np.zeros((Y.shape[0]))
+        condition[int(stim_start/neural_activity_sampling_rate): int(stim_end/neural_activity_sampling_rate)] = 1
+
+        # predicted BOLD signal
+        currX = np.convolve(condition, hrf)[:len(condition)]
+        # scale between 0 and 1
+        currX = (currX - np.min(currX)) / (np.max(currX) - np.min(currX))
+
+        X[:, layer] = currX
+
+    # down-sampled X at fMRI scan acquisition points
+    X = X[::int(TR/neural_activity_sampling_rate), :]
+    plt.plot(X[:, 0])
 
     # scale betas to obtain original signal (Y = X*B)
-    B = (np.linalg.pinv(X @ X.T) @ X).T @ Y
-    # TODO: I just copied this from Kris' code but I don't understand why we do this
-    print(B)
+    B = (np.linalg.pinv(X @ X.T) @ X).T @ bold_downsampled
     B = B[0, :]
-    return B, X, bold_responses
+    return B, X, bold_downsampled
