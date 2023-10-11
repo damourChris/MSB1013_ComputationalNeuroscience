@@ -68,6 +68,19 @@ def downsample_neural_activity(neural_signal, original_sample_rate=1e-4, target_
     return resampled_signal
 
 
+def remove_baseline_neural_activity(Y, stim_start=10, stim_end=20, sampling_rate=1e-4):
+    """Remove the baseline neural activity by calculating the mean of the neural signal outside the stimulation interval
+    and subtracting it from the whole signal
+    """
+    start_index = int(stim_start / sampling_rate)
+    end_index = int(stim_end / sampling_rate)
+    non_stimulation_indices = [i for i in range(Y.shape[0]) if i < start_index or i >= end_index]
+    for layer in range(Y.shape[1]):
+        mean_value = np.mean(Y[non_stimulation_indices, layer])
+        Y[:, layer] = Y[:, layer] - mean_value
+    return Y
+
+
 def get_betas_from_neural_activity(Y, neural_activity_sampling_rate=1e-4, bold_sample_rate=0.001,
                                    stim_start=10, stim_end=20):
     """For a single simulation
@@ -81,6 +94,10 @@ def get_betas_from_neural_activity(Y, neural_activity_sampling_rate=1e-4, bold_s
 
     # reduce to neural activity per layer
     neural_activity = combine_inh_exc_only_exc(Y)
+
+    # remove baseline neural activity
+    neural_activity = remove_baseline_neural_activity(neural_activity, stim_start, stim_end,
+                                                      neural_activity_sampling_rate)
 
     # down-sample to match dt of bold
     neural_activity = downsample_neural_activity(neural_activity)
