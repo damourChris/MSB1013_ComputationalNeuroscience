@@ -23,7 +23,7 @@ if __name__ == '__main__':
     neural_activity = combine_inh_exc_only_exc(simulations[0, :, :])
     current_y = neural_activity[:, 1]
     down_sampled = downsample_neural_activity(neural_activity, original_sample_rate=1e-4, target_sample_rate=0.001)
-    bold_signal, _, _, _ = balloon_windkessel(current_y)
+    bold_signal, _, _, _ = balloon_windkessel(current_y, stim_start=10)
     plt.figure(figsize=(10, 5))
     plt.subplot(2, 1, 1)
     plt.plot(current_y)

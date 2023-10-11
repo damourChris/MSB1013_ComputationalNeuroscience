@@ -109,7 +109,7 @@ def get_betas_from_neural_activity(Y, neural_activity_sampling_rate=1e-4, bold_s
     X = np.zeros((Y.shape[0], 4))
 
     for layer in range(neural_activity.shape[1]):
-        bold, f, v, q = balloon_windkessel(neural_activity[:, layer])
+        bold, f, v, q = balloon_windkessel(neural_activity[:, layer], stim_start=stim_start)
         bold_responses[:, layer] = bold
 
         # sample bold with TR

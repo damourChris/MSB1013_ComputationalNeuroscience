@@ -26,11 +26,12 @@ def get_ballon_windkessel_params():
     }
 
 
-def balloon_windkessel(neural_activity, dt=0.001):
+def balloon_windkessel(neural_activity, stim_start, dt=0.001):
     """
     Simulates the BOLD response using the Balloon-Windkessel model.
     
     :param neural_activity: array-like, the neural activity over time
+    :param stim_start: start of the stimulation in s, used to remove bold baseline
     :param dt: float, the time step
     
     :return: array-like, the BOLD response over time
@@ -87,9 +88,8 @@ def balloon_windkessel(neural_activity, dt=0.001):
 
         bold[t] = theta['V_0'] * (k1 * (1.0 - q[t]) + k2 * (1.0 - q[t] / v[t]) + k3 * (1.0 - v[t]))
 
-    # TODO: remove baseline in smarter way
-    bold = bold - bold[10000]
-    bold[:10000] = 0
+    bold = bold - bold[int(stim_start/dt)-1]
+    bold[:int(stim_start/dt)] = 0
     return bold, f, v, q
 
 
@@ -109,7 +109,7 @@ if __name__ == '__main__':
         X[t] = x
 
     # Get the BOLD response
-    bold, f, v, q = balloon_windkessel(X, dt=0.001)
+    bold, f, v, q = balloon_windkessel(X, stim_start=10, dt=0.001)
 
     # Plot the results
     plt.figure(figsize=(5, 10))
