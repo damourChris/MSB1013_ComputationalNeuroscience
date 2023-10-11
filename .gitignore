@@ -3,3 +3,4 @@
 __pycache__
 .idea/*
 BOLD_Signal/data/*
+**.npy
