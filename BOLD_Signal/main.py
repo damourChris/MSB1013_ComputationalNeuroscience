@@ -2,10 +2,9 @@ import os
 from pathlib import Path
 
 import numpy as np
-from matplotlib import pyplot as plt
 
-from BOLD_Signal.BWM import balloon_windkessel
-from BOLD_Signal.helper import downsample_neural_activity, combine_inh_exc_only_exc
+from BOLD_Signal.helper import get_betas_from_neural_activity, plot_neural_activity_and_betas, \
+    plot_neural_activity_and_bold
 
 
 def get_simulations(file_name="simulations.npy"):
@@ -18,20 +17,30 @@ def get_simulations(file_name="simulations.npy"):
     return simulations
 
 
+def write_betas_for_batch(file_name):
+    print(f"Create betas for batch with file name {file_name}")
+    simulations = get_simulations(file_name=file_name)
+    print(f"Running beta retrieval for simulation with shape {simulations.shape}")
+    betas = np.zeros(shape=(simulations.shape[0], 4))
+    for i in range(simulations.shape[0]):
+        print(f"Current iteration: {i}")
+        neural_activity = simulations[i, :, :]
+        B, X, bold_responses = get_betas_from_neural_activity(
+            neural_activity,
+            neural_activity_sampling_rate=1e-4,
+            bold_sample_rate=0.001,
+            stim_start=0.5,
+            stim_end=2.5
+        )
+        betas[i, :] = B
+        if i == 0:
+            plot_neural_activity_and_betas(neural_activity, B, X)
+            plot_neural_activity_and_bold(neural_activity, bold_responses)
+    betas_filename = file_name.replace("Y_", "Betas_")
+    betas_path = os.path.join(Path(__file__).parent, "data", betas_filename)
+    np.save(betas_path, betas)
+
+
 if __name__ == '__main__':
-    simulations = get_simulations(file_name="y_results_subset.npy")
-    neural_activity = combine_inh_exc_only_exc(simulations[0, :, :])
-    current_y = neural_activity[:, 1]
-    down_sampled = downsample_neural_activity(neural_activity, original_sample_rate=1e-4, target_sample_rate=0.001)
-    bold_signal, _, _, _ = balloon_windkessel(current_y, stim_start=10)
-    plt.figure(figsize=(10, 5))
-    plt.subplot(2, 1, 1)
-    plt.plot(current_y)
-    plt.title('Neural Activity')
-    plt.subplot(2, 1, 2)
-    plt.title('BOLD response')
-    plt.plot(bold_signal)
-    plt.xlabel('Time')
-    plt.ylabel('Amplitude')
-    plt.legend()
-    plt.show()
+    file_name = "Y_1152.npy"
+    write_betas_for_batch(file_name)

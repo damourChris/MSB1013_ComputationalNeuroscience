@@ -99,6 +99,8 @@ def get_betas_from_neural_activity(Y, neural_activity_sampling_rate=1e-4, bold_s
     neural_activity = remove_baseline_neural_activity(neural_activity, stim_start, stim_end,
                                                       neural_activity_sampling_rate)
 
+    # TODO: scale neural activity
+
     # down-sample to match dt of bold
     neural_activity = downsample_neural_activity(neural_activity)
 
@@ -131,9 +133,52 @@ def get_betas_from_neural_activity(Y, neural_activity_sampling_rate=1e-4, bold_s
 
     # down-sampled X at fMRI scan acquisition points
     X = X[::int(TR/neural_activity_sampling_rate), :]
-    plt.plot(X[:, 0])
 
     # scale betas to obtain original signal (Y = X*B)
     B = (np.linalg.pinv(X @ X.T) @ X).T @ bold_downsampled
     B = B[0, :]
     return B, X, bold_downsampled
+
+
+def plot_neural_activity_and_betas(neural_activity, B, X):
+    """Creates a plot from the original (not down sampled) neural activity, Betas and X
+    """
+    downsampledY = downsample_neural_activity(combine_inh_exc_only_exc(neural_activity))
+
+    colors = plt.cm.Spectral(np.linspace(0, 1, 4))
+    plt.figure(figsize=(10, 6))
+    plt.subplot(411)
+    plt.gca().set_prop_cycle(plt.cycler('color', plt.cm.Spectral(np.linspace(0, 1, 4))))
+    plt.title('Y')
+    plt.plot(downsampledY)
+    plt.xlim([0, len(downsampledY) - 1])
+    plt.subplot(412)
+    plt.title('B')
+    plt.bar(['L23', 'L4', 'L5', 'L6'], B, color=colors)
+    plt.subplot(413)
+    plt.gca().set_prop_cycle(plt.cycler('color', plt.cm.Spectral(np.linspace(0, 1, 4))))
+    plt.title('X')
+    plt.plot(X)
+    plt.subplot(414)
+    plt.gca().set_prop_cycle(plt.cycler('color', plt.cm.Spectral(np.linspace(0, 1, 4))))
+    plt.title('X*B')
+    plt.plot(X * B)
+    plt.xlim([0, len(X) - 1])
+    plt.tight_layout()
+    plt.show()
+
+
+def plot_neural_activity_and_bold(neural_activity, bold_responses):
+    """Plot neural activity and bold together
+    :param neural_activity: original neural activity used as input for bold
+    :param bold_responses: already down sampled bold(every 2 seconds)
+    """
+    downsampledY = downsample_neural_activity(combine_inh_exc_only_exc(neural_activity))
+
+    plt.figure()
+    for layer in range(4):
+        plt.subplot(4, 1, layer + 1)
+        plt.plot(downsampledY[::int(2 / 0.001), layer], label="activity")
+        plt.plot(bold_responses[:, layer], label="bold")
+        plt.legend()
+    plt.show()

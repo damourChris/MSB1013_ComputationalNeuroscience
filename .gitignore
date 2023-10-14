@@ -2,5 +2,4 @@
 .DS_Store
 __pycache__
 .idea/*
-BOLD_Signal/data/*
 **.npy
