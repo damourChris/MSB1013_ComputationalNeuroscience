@@ -37,9 +37,10 @@ def write_betas_for_batch(file_name):
     print(f"Running beta retrieval for simulation with shape {simulations.shape}")
     betas = np.zeros(shape=(simulations.shape[0], 4))
     for i in range(simulations.shape[0]):
-        print(f"Current iteration: {i}")
+        if i % 100 == 0:
+            print(f"Current iteration: {i}")
         neural_activity = simulations[i, :, :]
-        B, X, bold_responses = get_betas_from_neural_activity(
+        B, X, bold_responses, neural_activity_normalised = get_betas_from_neural_activity(
             neural_activity,
             neural_activity_sampling_rate=1e-4,
             bold_sample_rate=0.001,
@@ -48,8 +49,8 @@ def write_betas_for_batch(file_name):
         )
         betas[i, :] = B
         if i == 0:
-            plot_neural_activity_and_betas(neural_activity, B, X)
-            plot_neural_activity_and_bold(neural_activity, bold_responses)
+            plot_neural_activity_and_betas(neural_activity_normalised, B, X)
+            plot_neural_activity_and_bold(neural_activity_normalised, bold_responses)
     betas_filename = file_name.replace("Y_", "Betas_")
     betas_path = os.path.join(Path(__file__).parent, "data", betas_filename)
     np.save(betas_path, betas)

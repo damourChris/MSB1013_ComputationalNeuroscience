@@ -31,13 +31,12 @@ if __name__ == '__main__':
     ### SIMULATION ###
     # simulate DMF (i.e. neural activity)
     I, H, F = DMF_sim(U, P)  # I - input current, H - membrane potential, F - firing rate
-    Y = I[int(1 / dt):, :] - np.mean(I[int(0.5 / dt):int(1 / dt), :],
-                                     axis=0)  # deviation from baseline during stimulation (and remove initial transient)
-    # Y = (Y - np.min(Y)) / (np.max(Y) - np.min(Y)) * 2 - 1  # normalize Y between -1 and 1
-    Y = np.abs(Y * 50)
 
-    B, X, bold_responses = get_betas_from_neural_activity(Y)
+    # deviation from baseline during stimulation (and remove initial transient)
+    Y = I[int(1 / dt):, :] - np.mean(I[int(0.5 / dt):int(1 / dt), :], axis=0)
 
-    plot_neural_activity_and_betas(Y, B, X)
+    B, X, bold_responses, neural_activity = get_betas_from_neural_activity(Y)
 
-    plot_neural_activity_and_bold(Y, bold_responses)
+    plot_neural_activity_and_betas(neural_activity, B, X)
+
+    plot_neural_activity_and_bold(neural_activity, bold_responses)

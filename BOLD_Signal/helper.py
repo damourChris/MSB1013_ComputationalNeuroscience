@@ -68,9 +68,12 @@ def downsample_neural_activity(neural_signal, original_sample_rate=1e-4, target_
     return resampled_signal
 
 
-def remove_baseline_neural_activity(Y, stim_start=10, stim_end=20, sampling_rate=1e-4):
+def remove_baseline_and_normalize_neural_activity(Y, stim_start=10, stim_end=20, sampling_rate=1e-4):
     """Remove the baseline neural activity by calculating the mean of the neural signal outside the stimulation interval
-    and subtracting it from the whole signal
+    and subtracting it from the whole signal. Furthermore, the model expects the values for the neural activity to be
+    between 0 and 1. Zero can be achieved by removing the baseline, non-negative by taking the absolute value but the
+    maximum is a problem. We normalize per simulation and take the maximum value of all layers and map it to 1.
+    Additionally we take the absolute value (see TODO)
     """
     start_index = int(stim_start / sampling_rate)
     end_index = int(stim_end / sampling_rate)
@@ -78,7 +81,10 @@ def remove_baseline_neural_activity(Y, stim_start=10, stim_end=20, sampling_rate
     for layer in range(Y.shape[1]):
         mean_value = np.mean(Y[non_stimulation_indices, layer])
         Y[:, layer] = Y[:, layer] - mean_value
-    return Y
+    max_value = np.max(Y)
+    # TODO: i don't understand how we can have negative "activity"? inhibitory through network effects?
+    Y_normalised = np.abs(Y / max_value)
+    return Y_normalised
 
 
 def get_betas_from_neural_activity(Y, neural_activity_sampling_rate=1e-4, bold_sample_rate=0.001,
@@ -96,10 +102,8 @@ def get_betas_from_neural_activity(Y, neural_activity_sampling_rate=1e-4, bold_s
     neural_activity = combine_inh_exc_only_exc(Y)
 
     # remove baseline neural activity
-    neural_activity = remove_baseline_neural_activity(neural_activity, stim_start, stim_end,
-                                                      neural_activity_sampling_rate)
-
-    # TODO: scale neural activity
+    neural_activity = remove_baseline_and_normalize_neural_activity(neural_activity, stim_start, stim_end,
+                                                                    neural_activity_sampling_rate)
 
     # down-sample to match dt of bold
     neural_activity = downsample_neural_activity(neural_activity)
@@ -137,48 +141,50 @@ def get_betas_from_neural_activity(Y, neural_activity_sampling_rate=1e-4, bold_s
     # scale betas to obtain original signal (Y = X*B)
     B = (np.linalg.pinv(X @ X.T) @ X).T @ bold_downsampled
     B = B[0, :]
-    return B, X, bold_downsampled
+    return B, X, bold_downsampled, neural_activity
 
 
-def plot_neural_activity_and_betas(neural_activity, B, X):
-    """Creates a plot from the original (not down sampled) neural activity, Betas and X
+def plot_neural_activity_and_betas(neural_activity, B, X, sampling_rate=0.001):
+    """Creates a plot from the down sampled, normalised neural activity, Betas and X*B
     """
-    downsampledY = downsample_neural_activity(combine_inh_exc_only_exc(neural_activity))
-
     colors = plt.cm.Spectral(np.linspace(0, 1, 4))
     plt.figure(figsize=(10, 6))
-    plt.subplot(411)
+    plt.suptitle("Estimated parameters of the linear regression")
+    plt.subplot(311)
     plt.gca().set_prop_cycle(plt.cycler('color', plt.cm.Spectral(np.linspace(0, 1, 4))))
     plt.title('Y')
-    plt.plot(downsampledY)
-    plt.xlim([0, len(downsampledY) - 1])
-    plt.subplot(412)
+    plt.plot(np.arange(0, int(neural_activity.shape[0]*sampling_rate), sampling_rate), neural_activity)
+    plt.xlabel("t in sec")
+    plt.subplot(312)
     plt.title('B')
     plt.bar(['L23', 'L4', 'L5', 'L6'], B, color=colors)
-    plt.subplot(413)
+    plt.subplot(313)
     plt.gca().set_prop_cycle(plt.cycler('color', plt.cm.Spectral(np.linspace(0, 1, 4))))
-    plt.title('X')
-    plt.plot(X)
-    plt.subplot(414)
-    plt.gca().set_prop_cycle(plt.cycler('color', plt.cm.Spectral(np.linspace(0, 1, 4))))
-    plt.title('X*B')
-    plt.plot(X * B)
-    plt.xlim([0, len(X) - 1])
+    plt.title('Predicted input')
+    plt.plot(np.arange(0, len(X)*2 - 1, 2), X * B)
+    plt.xlim([0, int(len(X)*2)])
     plt.tight_layout()
     plt.show()
 
 
 def plot_neural_activity_and_bold(neural_activity, bold_responses):
     """Plot neural activity and bold together
-    :param neural_activity: original neural activity used as input for bold
-    :param bold_responses: already down sampled bold(every 2 seconds)
+    :param neural_activity: down sampled used as input for bold
+    :param bold_responses: already down sampled bold (every 2 seconds)
     """
-    downsampledY = downsample_neural_activity(combine_inh_exc_only_exc(neural_activity))
-
     plt.figure()
+    plt.figure(figsize=(10, 6))
+    plt.suptitle("Predicted BOLD response of the Balloon-Windkessel model")
     for layer in range(4):
         plt.subplot(4, 1, layer + 1)
-        plt.plot(downsampledY[::int(2 / 0.001), layer], label="activity")
-        plt.plot(bold_responses[:, layer], label="bold")
+        plt.title(f"Layer {layer + 1}")
+        t = np.arange(0, bold_responses.shape[0] * 2 - 1, 2)
+        plt.plot(t, neural_activity[::int(2 / 0.001), layer], label="Neural activity")
+        plt.plot(t, bold_responses[:, layer], label="BOLD signal")
+        plt.xlabel("t in sec")
+        plt.ylim([min(np.min(bold_responses), np.min(neural_activity)) - 1,
+                  max(np.max(bold_responses), np.max(neural_activity)) + 1])
+        plt.xlim([0, int(bold_responses.shape[0] * 2)])
         plt.legend()
+    plt.tight_layout(h_pad=2)
     plt.show()

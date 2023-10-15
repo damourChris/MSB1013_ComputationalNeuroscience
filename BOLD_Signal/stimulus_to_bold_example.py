@@ -18,35 +18,47 @@ if __name__ == '__main__':
     Y = np.zeros(shape=(int(t_sim / dt), 8))
     for layer in range(8):
         Y[:, layer] = X * layer / 10  # scale differently per layer
-    # # depends on what the simulations look like, goal is to make it a bit bigger
-    # Y = (Y - np.min(Y)) / (np.max(Y) - np.min(Y)) * 2 + 1  # normalize Y between -1 and 1
 
-    B, X, bold_responses = get_betas_from_neural_activity(Y)
-
-    downsampledY = downsample_neural_activity(combine_inh_exc_only_exc(Y))
+    B, X, bold_responses, neural_activity_normalised = get_betas_from_neural_activity(
+        Y,
+        stim_start=10,
+        stim_end=20,
+        neural_activity_sampling_rate=dt
+    )
 
     colors = plt.cm.Spectral(np.linspace(0, 1, 4))
     plt.figure(figsize=(10, 6))
+    plt.suptitle("Estimated parameters of the linear regression")
     plt.subplot(311)
     plt.gca().set_prop_cycle(plt.cycler('color', plt.cm.Spectral(np.linspace(0, 1, 4))))
-    plt.title('Y')
-    plt.plot(downsampledY)
-    plt.xlim([0, len(downsampledY) - 1])
+    plt.title('Neural signal')
+    plt.plot(np.arange(0, t_sim, 0.001), neural_activity_normalised)
+    plt.xlabel("t in sec")
     plt.subplot(312)
-    plt.title('B')
+    plt.title('Feature weights (betas)')
     plt.bar(['L23', 'L4', 'L5', 'L6'], B, color=colors)
     plt.subplot(313)
     plt.gca().set_prop_cycle(plt.cycler('color', plt.cm.Spectral(np.linspace(0, 1, 4))))
-    plt.title('X*B')
-    plt.plot(X * B)
-    plt.xlim([0, len(X) - 1])
+    plt.title('Predicted input')
+    plt.plot(np.arange(0, t_sim, 2), X * B)
+    plt.xlim([0, len(X)*2])
+    plt.xlabel("t in sec")
     plt.tight_layout()
     plt.savefig('fig/signal_betas_example.pdf', bbox_inches='tight', transparent=True, dpi=300)
 
-    plt.figure()
+    fig = plt.figure()
+    plt.figure(figsize=(8, 11))
+    plt.suptitle("Predicted BOLD response of the Balloon-Windkessel model")
     for layer in range(4):
         plt.subplot(4, 1, layer + 1)
-        plt.plot(downsampledY[::int(2/0.001), layer], label="activity")
-        plt.plot(bold_responses[:, layer], label="bold")
+        plt.title(f"Layer {layer + 1}")
+        t = np.arange(0, bold_responses.shape[0]*2 - 1, 2)
+        plt.plot(t, neural_activity_normalised[::int(2/0.001), layer], label="Neural activity")
+        plt.plot(t, bold_responses[:, layer], label="BOLD signal")
+        plt.xlabel("t in sec")
+        plt.ylim([min(np.min(bold_responses), np.min(neural_activity_normalised)) - 1,
+                  max(np.max(bold_responses), np.max(neural_activity_normalised)) + 1])
+        plt.xlim([0, bold_responses.shape[0]*2])
         plt.legend()
+    plt.tight_layout(h_pad=2)
     plt.savefig('fig/bold_neuronal_activity_example.pdf', bbox_inches='tight', transparent=True, dpi=300)

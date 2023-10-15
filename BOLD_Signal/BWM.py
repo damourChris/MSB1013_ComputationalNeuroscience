@@ -59,14 +59,13 @@ def balloon_windkessel(neural_activity, stim_start, dt=0.001):
 
     # neurovascular coupling, also performs low pass
     for t in range(n_time_points):
-        xinflow = np.exp(xinflow)
+        xinflow = np.exp(xinflow) + 1e-6  # to avoid dividing by zero
         yvaso = yvaso + dt * (neural_activity[t] - theta['c1'] * xvaso)  # vasoactive signal
         df_a = theta['c2'] * xvaso - theta['c3'] * (xinflow - 1)  # inflow
         yinflow = yinflow + dt * (df_a / xinflow)
         xvaso = yvaso
         xinflow = yinflow
         f[t] = np.exp(yinflow)
-    # f = np.nan_to_num(f) # TODO: we should not get nan values
 
     f_out = 0
     curr_v = 1
