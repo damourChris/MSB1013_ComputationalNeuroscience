@@ -13,8 +13,22 @@ def get_simulations(file_name="simulations.npy"):
     We read this file and return it as a numpy array
     """
     data_path = os.path.join(Path(__file__).parent, "data", file_name)
-    simulations = np.load(data_path)
-    return simulations
+
+    simulations_without_baseline = np.load(data_path)
+
+    simulation_sampling_rate = 1e-4
+
+    baseline_duration_added = 10
+    baseline_duration_steps = int(baseline_duration_added / simulation_sampling_rate)
+    baseline = np.load(os.path.join(Path(__file__).parent.parent, "Neurons_Simulations", "baseline.npy"))
+    baseline = baseline[:baseline_duration_steps, :]
+
+    batch_size = simulations_without_baseline.shape[0]
+
+    simulations_baseline = np.tile(baseline, (batch_size, 1, 1))
+
+    simulations_with_baseline = np.concatenate([simulations_without_baseline, simulations_baseline], axis=1)
+    return simulations_with_baseline
 
 
 def write_betas_for_batch(file_name):
@@ -42,5 +56,5 @@ def write_betas_for_batch(file_name):
 
 
 if __name__ == '__main__':
-    file_name = "Y_1152.npy"
+    file_name = "Y_01.npy"
     write_betas_for_batch(file_name)
