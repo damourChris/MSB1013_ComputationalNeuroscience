@@ -73,7 +73,7 @@ def remove_baseline_and_normalize_neural_activity(Y, stim_start=10, stim_end=20,
     and subtracting it from the whole signal. Furthermore, the model expects the values for the neural activity to be
     between 0 and 1. Zero can be achieved by removing the baseline, non-negative by taking the absolute value but the
     maximum is a problem. We normalize per simulation and take the maximum value of all layers and map it to 1.
-    Additionally we take the absolute value (see TODO)
+    Additionally we take the absolute value because it's some kind of current (activity going on, absolute energy)
     """
     start_index = int(stim_start / sampling_rate)
     end_index = int(stim_end / sampling_rate)
@@ -82,7 +82,7 @@ def remove_baseline_and_normalize_neural_activity(Y, stim_start=10, stim_end=20,
         mean_value = np.mean(Y[non_stimulation_indices, layer])
         Y[:, layer] = Y[:, layer] - mean_value
     max_value = np.max(Y)
-    # TODO: i don't understand how we can have negative "activity"? inhibitory through network effects?
+    # absolute value because it's just some kind of current
     Y_normalised = np.abs(Y / max_value)
     return Y_normalised
 
