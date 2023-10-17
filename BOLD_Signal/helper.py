@@ -88,7 +88,7 @@ def remove_baseline_and_normalize_neural_activity(Y, stim_start=10, stim_end=20,
 
 
 def get_betas_from_neural_activity(Y, neural_activity_sampling_rate=1e-4, bold_sample_rate=0.001,
-                                   stim_start=10, stim_end=20):
+                                   stim_start=10, stim_end=20, exc_only=True):
     """For a single simulation
     TODO: extend to make it work on whole array
     """
@@ -99,7 +99,10 @@ def get_betas_from_neural_activity(Y, neural_activity_sampling_rate=1e-4, bold_s
     sampling_indices = np.arange(0, int(simulation_time / bold_sample_rate), int(TR / bold_sample_rate))
 
     # reduce to neural activity per layer
-    neural_activity = combine_inh_exc_only_exc(Y)
+    if exc_only:
+        neural_activity = combine_inh_exc_only_exc(Y)
+    else:
+        neural_activity = combine_inh_exc_abs_sum(Y)
 
     # remove baseline neural activity
     neural_activity = remove_baseline_and_normalize_neural_activity(neural_activity, stim_start, stim_end,
