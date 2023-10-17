@@ -12,7 +12,7 @@ def get_simulations(file_name="simulations.npy"):
 
     We read this file and return it as a numpy array
     """
-    data_path = os.path.join(Path(__file__).parent, "data", file_name)
+    data_path = os.path.join(Path(__file__).parent.parent, "Neurons_Simulations", "COMBIS", file_name)
 
     simulations_without_baseline = np.load(data_path)
 
@@ -48,7 +48,7 @@ def write_betas_for_batch(file_name):
             stim_end=2.5
         )
         betas[i, :] = B
-        if i == 0:
+        if i == 0 and False:
             plot_neural_activity_and_betas(neural_activity_normalised, B, X)
             plot_neural_activity_and_bold(neural_activity_normalised, bold_responses)
     betas_filename = file_name.replace("Y_", "Betas_")
@@ -57,5 +57,6 @@ def write_betas_for_batch(file_name):
 
 
 if __name__ == '__main__':
-    file_name = "Y_01.npy"
-    write_betas_for_batch(file_name)
+    for batch in range(1, 11):
+        file_name = f"Y_{batch:02d}.npy"
+        write_betas_for_batch(file_name)
