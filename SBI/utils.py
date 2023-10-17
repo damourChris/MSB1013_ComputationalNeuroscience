@@ -9,17 +9,19 @@ def param_histogram(samples, labels=None, figsize=(10, 10)):
     Create a histogram summary of parameters from samples.
     """
     num_samples, num_dims = samples.shape
+    plot_dims = ceil(sqrt(num_dims))
 
     if (labels is None):
         labels = [r"$\theta_{}$".format(i) for i in range(num_dims)]
 
-    fig, ax = plt.subplots(num_dims, 1, figsize=figsize)
+    fig, ax = plt.subplots(plot_dims, plot_dims, figsize=figsize)
     plt.suptitle(r'p($\theta | x$)', fontsize=20)
-    for i in range(num_dims):    
-        ax[i, 1].hist(samples[:, i], bins=50, density=True, histtype="step", color="black")
-        ax[i, 1].set_xlabel(labels[i])
-        ax[i, 1].set_ylabel(labels[i])
-        ax[i, 1].set_yticks([])
+    for i in range(plot_dims):    
+        for j in range(plot_dims):    
+            ax[i, j].hist(samples[:, i], bins=50, density=True, histtype="step", color="black")
+            ax[i, j].set_xlabel(labels[i])
+            ax[i, j].set_ylabel(labels[i])
+            ax[i, j].set_yticks([])
     return fig, ax
 
 
