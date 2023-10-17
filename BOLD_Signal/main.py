@@ -48,7 +48,7 @@ def write_betas_for_batch(file_name):
             stim_end=2.5
         )
         betas[i, :] = B
-        if i == 0 and False:
+        if i == 0:
             plot_neural_activity_and_betas(neural_activity_normalised, B, X)
             plot_neural_activity_and_bold(neural_activity_normalised, bold_responses)
     betas_filename = file_name.replace("Y_", "Betas_")

@@ -153,7 +153,7 @@ def plot_neural_activity_and_betas(neural_activity, B, X, sampling_rate=0.001):
     plt.subplot(311)
     plt.gca().set_prop_cycle(plt.cycler('color', plt.cm.Spectral(np.linspace(0, 1, 4))))
     plt.title('Y')
-    plt.plot(np.arange(0, int(neural_activity.shape[0]*sampling_rate), sampling_rate), neural_activity)
+    plt.plot(np.arange(0, neural_activity.shape[0]*sampling_rate, sampling_rate), neural_activity)
     plt.xlabel("t in sec")
     plt.subplot(312)
     plt.title('B')
