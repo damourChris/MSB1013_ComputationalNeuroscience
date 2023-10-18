@@ -61,4 +61,7 @@ def write_betas_for_batch(file_name, exc_only=True):
 if __name__ == '__main__':
     for batch in range(1, 11):
         file_name = f"Y_{batch:02d}.npy"
+        write_betas_for_batch(file_name, exc_only=True)
+    for batch in range(1, 11):
+        file_name = f"Y_{batch:02d}.npy"
         write_betas_for_batch(file_name, exc_only=False)

@@ -19,9 +19,9 @@ def get_ballon_windkessel_params():
         'alpha': 0.32,
         'E_0': 0.4,
         'V_0': 4,
-        'eps': 0.0463,
+        'eps': 0,  # 0.0463,
         'rho_0': .191,
-        'nu_0': 126.3,
+        'nu_0': 188.1,
         'TE': 0.028
     }
 
@@ -47,10 +47,6 @@ def balloon_windkessel(neural_activity, stim_start, dt=0.001):
     bold = np.zeros(n_time_points)
 
     f = np.zeros(n_time_points)
-
-    theta = {'c1': 0.6, 'c2': 1.5, 'c3': 0.6,
-             'tau_mtt': 2, 'tau_vs': 4, 'alpha': 0.32, 'E_0': 0.4, 'V_0': 4, 'eps': 0.0463, 'rho_0': .191,
-             'nu_0': 126.3, 'TE': 0.028}
 
     xinflow = 0
     xvaso = 0
