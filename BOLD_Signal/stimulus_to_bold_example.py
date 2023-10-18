@@ -50,15 +50,31 @@ if __name__ == '__main__':
     plt.figure(figsize=(8, 11))
     plt.suptitle("Predicted BOLD response of the Balloon-Windkessel model")
     for layer in range(4):
-        plt.subplot(4, 1, layer + 1)
+        ax1 = plt.subplot(4, 1, layer + 1)
         plt.title(f"Layer {layer + 1}")
         t = np.arange(0, bold_responses.shape[0]*2 - 1, 2)
-        plt.plot(t, neural_activity_normalised[::int(2/0.001), layer], label="Neural activity")
-        plt.plot(t, bold_responses[:, layer], label="BOLD signal")
-        plt.xlabel("t in sec")
-        plt.ylim([min(np.min(bold_responses), np.min(neural_activity_normalised)) - 1,
-                  max(np.max(bold_responses), np.max(neural_activity_normalised)) + 1])
-        plt.xlim([0, bold_responses.shape[0]*2])
-        plt.legend()
+
+        neural_activity_line,  = ax1.plot(t, neural_activity_normalised[::int(2/0.001), layer], label="Neural activity", color='C0')
+        ax1.set_yticks(np.arange(0, np.max(neural_activity_normalised)*1.2, 0.2))
+        ax1.tick_params(axis='y', labelcolor='C0')
+        ax1.set_ylabel("Neural activity (scaled)")
+        ax1_ylim_min = -0.02
+        ax1_ylim_max = 1.17
+
+        ax1.set_ylim([ax1_ylim_min, ax1_ylim_max])
+
+        ax1_ylim_range = ax1_ylim_max - ax1_ylim_min
+
+        ax2 = ax1.twinx()
+        bold_line,  = ax2.plot(t, bold_responses[:, layer], label="BOLD signal", color='C1')
+        ax2.set_yticks(np.arange(0, np.max(bold_responses)+2, 2))
+        ax2.tick_params(axis='y', labelcolor='C1')
+        ax2.set_ylabel("BOLD signal in %")
+        ax2.set_ylim([ax1_ylim_min/ax1_ylim_range*(np.max(bold_responses)+2),
+                      ax1_ylim_max/ax1_ylim_range*(np.max(bold_responses)+2)])
+
+        ax1.set_xlim([0, bold_responses.shape[0]*2])
+        ax1.set_xlabel("t in sec")
+        ax1.legend([neural_activity_line, bold_line], ['Neural activity', 'BOLD signal'])
     plt.tight_layout(h_pad=2)
     plt.savefig('fig/bold_neuronal_activity_example.pdf', bbox_inches='tight', transparent=True, dpi=300)
