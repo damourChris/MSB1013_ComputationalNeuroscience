@@ -155,9 +155,10 @@ def plot_neural_activity_and_betas(neural_activity, B, X, sampling_rate=0.001):
     plt.suptitle("Estimated parameters of the linear regression")
     plt.subplot(311)
     plt.gca().set_prop_cycle(plt.cycler('color', plt.cm.Spectral(np.linspace(0, 1, 4))))
-    plt.title('Y')
+    plt.title('Neural activity')
     plt.plot(np.arange(0, neural_activity.shape[0]*sampling_rate, sampling_rate), neural_activity)
-    plt.xlabel("t in sec")
+    plt.xlabel("t [sec]")
+    plt.ylabel("Strength of activity")
     plt.subplot(312)
     plt.title('B')
     plt.bar(['L23', 'L4', 'L5', 'L6'], B, color=colors)
@@ -166,6 +167,7 @@ def plot_neural_activity_and_betas(neural_activity, B, X, sampling_rate=0.001):
     plt.title('Predicted input')
     plt.plot(np.arange(0, len(X)*2 - 1, 2), X * B)
     plt.xlim([0, int(len(X)*2)])
+    plt.ylabel("Strength of activity")
     plt.tight_layout()
     plt.show()
 
@@ -185,7 +187,7 @@ def plot_neural_activity_and_bold(neural_activity, bold_responses):
         neural_activity_line,  = ax1.plot(t, neural_activity[::int(2 / 0.001), layer], label="Neural activity", color='C0')
         ax1.set_yticks(np.arange(0, np.max(neural_activity) * 1.2, 0.2))
         ax1.tick_params(axis='y', labelcolor='C0')
-        ax1.set_ylabel("Neural activity (scaled)")
+        ax1.set_ylabel("Strength of activity")
         ax1_ylim_min = -0.02
         ax1_ylim_max = 1.17
 
@@ -197,12 +199,12 @@ def plot_neural_activity_and_bold(neural_activity, bold_responses):
         bold_line, = ax2.plot(t, bold_responses[:, layer], label="BOLD signal", color='C1')
         ax2.set_yticks(np.arange(0, np.max(bold_responses) + 2, 2))
         ax2.tick_params(axis='y', labelcolor='C1')
-        ax2.set_ylabel("BOLD signal in %")
+        ax2.set_ylabel("BOLD signal [%]")
         ax2.set_ylim([ax1_ylim_min / ax1_ylim_range * (np.max(bold_responses) + 2),
                       ax1_ylim_max / ax1_ylim_range * (np.max(bold_responses) + 2)])
 
         ax1.set_xlim([0, bold_responses.shape[0] * 2])
-        ax1.set_xlabel("t in sec")
+        ax1.set_xlabel("t [sec]")
         ax1.legend([neural_activity_line, bold_line], ['Neural activity', 'BOLD signal'])
     plt.tight_layout(h_pad=2)
     plt.show()

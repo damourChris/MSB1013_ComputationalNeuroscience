@@ -33,7 +33,8 @@ if __name__ == '__main__':
     plt.gca().set_prop_cycle(plt.cycler('color', plt.cm.Spectral(np.linspace(0, 1, 4))))
     plt.title('Neural signal')
     plt.plot(np.arange(0, t_sim, 0.001), neural_activity_normalised)
-    plt.xlabel("t in sec")
+    plt.ylabel("Strength of activity")
+    plt.xlabel("t [sec]")
     plt.subplot(312)
     plt.title('Feature weights (betas)')
     plt.bar(['L23', 'L4', 'L5', 'L6'], B, color=colors)
@@ -41,8 +42,9 @@ if __name__ == '__main__':
     plt.gca().set_prop_cycle(plt.cycler('color', plt.cm.Spectral(np.linspace(0, 1, 4))))
     plt.title('Predicted input')
     plt.plot(np.arange(0, t_sim, 2), X * B)
+    plt.ylabel("Strength of activity")
     plt.xlim([0, len(X)*2])
-    plt.xlabel("t in sec")
+    plt.xlabel("t [sec]")
     plt.tight_layout()
     plt.savefig('fig/signal_betas_example.pdf', bbox_inches='tight', transparent=True, dpi=300)
 
@@ -57,7 +59,7 @@ if __name__ == '__main__':
         neural_activity_line,  = ax1.plot(t, neural_activity_normalised[::int(2/0.001), layer], label="Neural activity", color='C0')
         ax1.set_yticks(np.arange(0, np.max(neural_activity_normalised)*1.2, 0.2))
         ax1.tick_params(axis='y', labelcolor='C0')
-        ax1.set_ylabel("Neural activity (scaled)")
+        ax1.set_ylabel("Strength of activity")
         ax1_ylim_min = -0.02
         ax1_ylim_max = 1.17
 
@@ -74,7 +76,7 @@ if __name__ == '__main__':
                       ax1_ylim_max/ax1_ylim_range*(np.max(bold_responses)+2)])
 
         ax1.set_xlim([0, bold_responses.shape[0]*2])
-        ax1.set_xlabel("t in sec")
+        ax1.set_xlabel("t [sec]")
         ax1.legend([neural_activity_line, bold_line], ['Neural activity', 'BOLD signal'])
     plt.tight_layout(h_pad=2)
     plt.savefig('fig/bold_neuronal_activity_example.pdf', bbox_inches='tight', transparent=True, dpi=300)
