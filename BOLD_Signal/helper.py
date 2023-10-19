@@ -143,6 +143,7 @@ def get_betas_from_neural_activity(Y, neural_activity_sampling_rate=1e-4, bold_s
 
     # scale betas to obtain original signal (Y = X*B)
     B = (np.linalg.pinv(X @ X.T) @ X).T @ bold_downsampled
+    # equivalent to B = (np.linalg.pinv(X.T @ X) @ X.T) @ bold_downsampled
     B = B[0, :]
     return B, X, bold_downsampled, neural_activity
 
