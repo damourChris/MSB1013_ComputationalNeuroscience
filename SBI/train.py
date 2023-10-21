@@ -152,7 +152,7 @@ if __name__=="__main__":
     print("Training finished. Saving model...")
     
     # Check if model directory exist, if not create it.
-    if not os.path.exists(args.models_dir)
+    if not os.path.exists(args.models_dir):
         try:
             os.makedirs(path)
             print("Model Directory: ", args.models_dir, " Created")
