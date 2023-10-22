@@ -159,6 +159,7 @@ def marginal_correlation(samples, labels=None, figsize=(10, 10)):
 
 
 def accuracy_per_layer(binary_layer_test_results,
+                       activated_layers,
         num_layers = 8,
        figsize=(10,5)
         ):
@@ -166,6 +167,7 @@ def accuracy_per_layer(binary_layer_test_results,
     num_tests = len(binary_layer_test_results)
     combination_success = np.zeros((num_layers+1,num_layers+1))
     single_layer_success = np.zeros((num_layers))
+    activated_layers_ratio =  np.zeros((num_layers))
 
     all_1_combis_keys = list(combinations(range(num_layers), 1)) 
     all_2_combis_keys = list(combinations(range(num_layers), 2))
@@ -178,12 +180,15 @@ def accuracy_per_layer(binary_layer_test_results,
     correctly_predicted_layers = list(map(lambda x: np.where(x > 0), binary_layer_test_results))
     
     for val in all_1_combis_keys:
+        activated_layers_ratio[val[0]] = sum([1 if activated_layers[i][val] == 0 else 0 for i in range(num_tests)])/num_tests
         single_layer_success[val[0]] = sum([1 if sum(np.isin(val,correctly_predicted_layers[i][0])) == 1 else 0 for i in range(num_tests)])/num_tests
 
     ax[0].bar(list(range(1,num_layers+1)), single_layer_success)
+    ax[0].bar(list(range(1,num_layers+1)), activated_layers_ratio, alpha=0.8)
     ax[0].set_xticks(list(range(1,num_layers+1)))
     ax[0].set_ylabel("Ratio of accurate predictions")
     ax[0].set_xlabel("Layer")
+    ax[0].set_ylim([0,1])
     # plt.title("Prediction Success per layer")
     ax[0].set_title("Correct prediction per single layer")
 
