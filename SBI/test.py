@@ -28,15 +28,14 @@ def test_posterior(
     test_results['true_layers'] = np.zeros((num_tests, num_layers))
     test_results['predictions_binary'] = np.zeros((num_tests, num_layers))
     test_results['prediction_sucess_binary'] =  np.zeros((num_tests))
+    test_results['std_per_layer'] =  np.zeros((num_tests, num_layers))
+    test_results['mean_per_layer'] =  np.zeros((num_tests, num_layers))
     
     # Initialize array for calculating percentile values
     p = np.linspace(0,100, 1000)
-
-    print("Running ", num_tests, " tests")
     
     # loop over all the testing data 
-    #    tqdm() = progress bar 
-    for cur_test_indx in tqdm(range(0, num_tests), unit=" tests", colour="green", file=sys.stdout):
+    for cur_test_indx in tqdm(range(0, num_tests), unit=" tests", colour="green", file=sys.stdout,position=0):
         
         # Get default stats
         obs_x = test_matrix[cur_test_indx, range(num_layers,num_layers+num_betas) ] 
@@ -50,16 +49,22 @@ def test_posterior(
         # Initialize temporary arrays 
         in_bounds = np.zeros((num_layers))
         percentile_value = np.zeros((num_layers))
+        means = np.zeros((num_layers))
+        stds = np.zeros((num_layers))
         
         # Get stats for each layer
         for cur_layer in range(num_layers):    
             
             true_value = obs_theta[cur_layer]
+            layer_samples = posterior_samples[:, cur_layer]
+            
+            means[cur_layer] = np.mean(np.array(layer_samples))
+            stds[cur_layer] = np.std(np.array(layer_samples))
             
             # Get percentile value and values for each percentile
             # p is array of 0 -> 100 so that percentiles has the all the values for the percentiles
-            percentile_value[cur_layer] = np.percentile(posterior_samples[:, cur_layer], percentile)
-            percentiles = np.percentile(posterior_samples[:, cur_layer], p)
+            percentile_value[cur_layer] = np.percentile(layer_samples, percentile)
+            percentiles = np.percentile(layer_samples, p)
             
             # Establish range for prediction compared to true value
             lower_bound = true_value*(1 - threshold) - tolerance
@@ -78,6 +83,8 @@ def test_posterior(
         predicted_actived_layers = np.array([1 if np.percentile(posterior_samples[:,i], percentile) > activation_threshold else 0 for i in range(num_layers)])
         
         # Store testing results 
+        test_results['std_per_layer'][cur_test_indx]  =  means
+        test_results['mean_per_layer'][cur_test_indx]  =  stds
         test_results['true_layers'][cur_test_indx]      = true_activated_layers
         test_results['activated_layers'][cur_test_indx] = predicted_actived_layers
         test_results['predictions_binary'][cur_test_indx]= (true_activated_layers == predicted_actived_layers).astype(int)
