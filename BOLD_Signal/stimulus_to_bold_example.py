@@ -2,6 +2,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 from BOLD_Signal.helper import downsample_neural_activity, combine_inh_exc_only_exc, get_betas_from_neural_activity
+from BOLD_Signal.plot_utils import get_plt_settings, get_plt_size
 
 if __name__ == '__main__':
     # create simple stimulus as neural activity
@@ -26,8 +27,12 @@ if __name__ == '__main__':
         neural_activity_sampling_rate=dt
     )
 
+    # settings for matplotlib
+    plt.rcParams.update(get_plt_settings())
+    width, height = get_plt_size(1.0)
+
     colors = plt.cm.Spectral(np.linspace(0, 1, 4))
-    plt.figure(figsize=(10, 6))
+    plt.figure(figsize=(width, height*2))
     plt.suptitle("Estimated parameters of the linear regression")
     plt.subplot(311)
     plt.gca().set_prop_cycle(plt.cycler('color', plt.cm.Spectral(np.linspace(0, 1, 4))))
@@ -49,14 +54,15 @@ if __name__ == '__main__':
     plt.savefig('fig/signal_betas_example.pdf', bbox_inches='tight', transparent=True, dpi=300)
 
     fig = plt.figure()
-    plt.figure(figsize=(8, 11))
+    plt.figure(figsize=(width, height*2))
     plt.suptitle("Predicted BOLD response of the Balloon-Windkessel model")
     for layer in range(4):
         ax1 = plt.subplot(4, 1, layer + 1)
         plt.title(f"Layer {layer + 1}")
         t = np.arange(0, bold_responses.shape[0]*2 - 1, 2)
 
-        neural_activity_line,  = ax1.plot(t, neural_activity_normalised[::int(2/0.001), layer], label="Neural activity", color='C0')
+        neural_activity_line,  = ax1.plot(t, neural_activity_normalised[::int(2/0.001), layer], label="Neural activity",
+                                          color='C0')
         ax1.set_yticks(np.arange(0, np.max(neural_activity_normalised)*1.2, 0.2))
         ax1.tick_params(axis='y', labelcolor='C0')
         ax1.set_ylabel("Strength of activity")
@@ -69,9 +75,9 @@ if __name__ == '__main__':
 
         ax2 = ax1.twinx()
         bold_line,  = ax2.plot(t, bold_responses[:, layer], label="BOLD signal", color='C1')
-        ax2.set_yticks(np.arange(0, np.max(bold_responses)+2, 2))
+        ax2.set_yticks(np.arange(0, np.max(bold_responses)+2, 4))
         ax2.tick_params(axis='y', labelcolor='C1')
-        ax2.set_ylabel("BOLD signal in %")
+        ax2.set_ylabel("BOLD signal [%]")
         ax2.set_ylim([ax1_ylim_min/ax1_ylim_range*(np.max(bold_responses)+2),
                       ax1_ylim_max/ax1_ylim_range*(np.max(bold_responses)+2)])
 
