@@ -32,7 +32,7 @@ if __name__ == '__main__':
     width, height = get_plt_size(1.0)
 
     colors = plt.cm.Spectral(np.linspace(0, 1, 4))
-    plt.figure(figsize=(width, height*2))
+    plt.figure(figsize=(width, height*1.5))
     plt.suptitle("Estimated parameters of the linear regression")
     plt.subplot(311)
     plt.gca().set_prop_cycle(plt.cycler('color', plt.cm.Spectral(np.linspace(0, 1, 4))))
@@ -54,7 +54,7 @@ if __name__ == '__main__':
     plt.savefig('fig/signal_betas_example.pdf', bbox_inches='tight', transparent=True, dpi=300)
 
     fig = plt.figure()
-    plt.figure(figsize=(width, height*2))
+    plt.figure(figsize=(width, height*1.6))
     plt.suptitle("Predicted BOLD response of the Balloon-Windkessel model")
     for layer in range(4):
         ax1 = plt.subplot(4, 1, layer + 1)
@@ -77,12 +77,12 @@ if __name__ == '__main__':
         bold_line,  = ax2.plot(t, bold_responses[:, layer], label="BOLD signal", color='C1')
         ax2.set_yticks(np.arange(0, np.max(bold_responses)+2, 4))
         ax2.tick_params(axis='y', labelcolor='C1')
-        ax2.set_ylabel("BOLD signal [%]")
+        ax2.set_ylabel("BOLD signal [\%]")
         ax2.set_ylim([ax1_ylim_min/ax1_ylim_range*(np.max(bold_responses)+2),
                       ax1_ylim_max/ax1_ylim_range*(np.max(bold_responses)+2)])
 
         ax1.set_xlim([0, bold_responses.shape[0]*2])
         ax1.set_xlabel("t [sec]")
         ax1.legend([neural_activity_line, bold_line], ['Neural activity', 'BOLD signal'])
-    plt.tight_layout(h_pad=2)
+    plt.tight_layout(h_pad=1)
     plt.savefig('fig/bold_neuronal_activity_example.pdf', bbox_inches='tight', transparent=True, dpi=300)
