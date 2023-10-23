@@ -49,7 +49,7 @@ def create_batch(batch_number, file_number=None):
     folder_path = get_result_folder()
 
     # the first 10 batches were created without more batches planned, so we will from now just offset afterwards for batch numbering
-    batch_offset = 0 if file_number is None else file_number*10
+    batch_offset = 0 if file_number is None else (file_number-1)*10
 
     if batch_number > 19:  # we only have 20 batches
         raise ValueError("The specified batch number does not exist")
