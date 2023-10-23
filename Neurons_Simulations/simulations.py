@@ -11,11 +11,14 @@ def get_result_folder():
     return folder_path
 
 
-def get_combinations(create=False):
+def get_combinations(create=False, file_number=None):
     # Define the possible values for each input intensity.
     valuesI = [50, 100, 150, 200, 250, 300]
     valuesLayer = range(8)
     folder_path = get_result_folder()
+
+    input_combinations_path = os.path.join(folder_path, f"input_combinations{f'_{file_number:02d}' if file_number else ''}.npy")
+    layer_combinations_path = os.path.join(folder_path, f"layer_combinations{f'_{file_number:02d}' if file_number else ''}.npy")
     if create:
         # Create an array of all possible combinations for each input
         input_combinations = np.array(np.meshgrid(valuesI, valuesI)).T.reshape(-1, 2)
@@ -33,19 +36,22 @@ def get_combinations(create=False):
         input_combinations = input_combinations + np.random.uniform(-50, 49, input_combinations.shape)
 
         # save input and layer combinations
-        np.save(os.path.join(folder_path, "input_combinations.npy"), input_combinations)
-        np.save(os.path.join(folder_path, "layer_combinations.npy"), layer_combinations)
+        np.save(input_combinations_path, input_combinations)
+        np.save(layer_combinations_path, layer_combinations)
     else:
-        input_combinations = np.load(os.path.join(folder_path, "input_combinations.npy"))
-        layer_combinations = np.load(os.path.join(folder_path, "layer_combinations.npy"))
+        input_combinations = np.load(input_combinations_path)
+        layer_combinations = np.load(layer_combinations_path)
     return input_combinations, layer_combinations
 
 
-def create_batch(batch_number):
-    input_combinations, layer_combinations = get_combinations(create=False)
+def create_batch(batch_number, file_number=None):
+    input_combinations, layer_combinations = get_combinations(create=False, file_number=file_number)
     folder_path = get_result_folder()
 
-    if batch_number > 9:  # we only have 10 batches
+    # the first 10 batches were created without more batches planned, so we will from now just offset afterwards for batch numbering
+    batch_offset = 0 if file_number is None else file_number*10
+
+    if batch_number > 19:  # we only have 20 batches
         raise ValueError("The specified batch number does not exist")
 
     # DMF parameters
@@ -96,11 +102,12 @@ def create_batch(batch_number):
         if (total_counter + 1) % batch_size == 0 or total_counter == (input_combinations.shape[0] - 1):
             # Save the results and include the batch number in the file name with leading zeros
             # note that the baseline is not saved with the simulation to avoid large files
-            np.save(os.path.join(folder_path, f'Y_{batch_number+1:02d}.npy'), Y)
+            np.save(os.path.join(folder_path, f'Y_{batch_number+1+batch_offset:02d}.npy'), Y)
             break  # we only want to do one batch at a time
 
 
 if __name__ == '__main__':
-    for batch in range(2, 9):  # file names 03 to 10
+    # get_combinations(create=True, file_number=2)
+    for batch in range(0, 1):
         print(f"Run batch for file Y_{batch + 1:02d}.npy")
-        create_batch(batch)
+        create_batch(batch, file_number=2)
