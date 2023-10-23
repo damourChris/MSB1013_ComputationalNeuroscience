@@ -11,6 +11,17 @@ def get_result_folder():
     return folder_path
 
 
+def create_total_combination_file(file_number=None):
+    folder_path = get_result_folder()
+    input_combinations, layer_combinations = get_combinations(create=False, file_number=file_number)
+    total_combinations = np.zeros((input_combinations.shape[0], 8))
+    total_combinations[np.arange(input_combinations.shape[0]).reshape(-1, 1), layer_combinations] = input_combinations
+
+    total_combinations_path = os.path.join(folder_path,
+                                           f"total_combinations{f'_{file_number:02d}' if file_number else ''}.npy")
+    np.save(total_combinations_path, total_combinations)
+
+
 def get_combinations(create=False, file_number=None):
     # Define the possible values for each input intensity.
     valuesI = [50, 100, 150, 200, 250, 300]
@@ -108,6 +119,8 @@ def create_batch(batch_number, file_number=None):
 
 if __name__ == '__main__':
     # get_combinations(create=True, file_number=2)
-    for batch in range(0, 1):
-        print(f"Run batch for file Y_{batch + 1:02d}.npy")
+    file_number = 2
+    create_total_combination_file(file_number=2)
+    for batch in range(4, 10):
+        print(f"Run batch for file Y_{batch + 1 + (file_number-1)*10:02d}.npy")
         create_batch(batch, file_number=2)
