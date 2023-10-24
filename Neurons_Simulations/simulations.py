@@ -12,6 +12,10 @@ def get_result_folder():
 
 
 def create_total_combination_file(file_number=None):
+    """Creates the total_combinations file, containing information about input current and stimulated layers
+    :param file_number: if None, the input and layer combinations have no number in the file name, and it's the first
+    set of simulations that was created
+    """
     folder_path = get_result_folder()
     input_combinations, layer_combinations = get_combinations(create=False, file_number=file_number)
     total_combinations = np.zeros((input_combinations.shape[0], 8))
@@ -23,13 +27,20 @@ def create_total_combination_file(file_number=None):
 
 
 def get_combinations(create=False, file_number=None):
+    """Returns input and layer combinations used for the simulations
+    :param create: if True, new combinations are created and saved, if False, the existing files are loaded
+    :param file_number: if None, the input and layer combinations have no number in the file name, and it's the first
+    set of simulations that was created
+    """
     # Define the possible values for each input intensity.
     valuesI = [50, 100, 150, 200, 250, 300]
     valuesLayer = range(8)
     folder_path = get_result_folder()
 
-    input_combinations_path = os.path.join(folder_path, f"input_combinations{f'_{file_number:02d}' if file_number else ''}.npy")
-    layer_combinations_path = os.path.join(folder_path, f"layer_combinations{f'_{file_number:02d}' if file_number else ''}.npy")
+    input_combinations_path = os.path.join(folder_path,
+                                           f"input_combinations{f'_{file_number:02d}' if file_number else ''}.npy")
+    layer_combinations_path = os.path.join(folder_path,
+                                           f"layer_combinations{f'_{file_number:02d}' if file_number else ''}.npy")
     if create:
         # Create an array of all possible combinations for each input
         input_combinations = np.array(np.meshgrid(valuesI, valuesI)).T.reshape(-1, 2)
@@ -56,10 +67,18 @@ def get_combinations(create=False, file_number=None):
 
 
 def create_batch(batch_number, file_number=None):
+    """Creates and writes a batch of simulations. Each input/layer combinations file contains 11520 combinations that
+    are divided into 10 batches each
+    :param batch_number: the number fo the batch that should be created, between 0 and 9
+    :type batch_number: int
+    :param file_number: which input/layer combination file should be used
+    :type file_number: int
+    """
     input_combinations, layer_combinations = get_combinations(create=False, file_number=file_number)
     folder_path = get_result_folder()
 
-    # the first 10 batches were created without more batches planned, so we will from now just offset afterwards for batch numbering
+    # the first 10 batches were created without more batches planned, so we will from now just offset afterward for
+    # batch numbering
     batch_offset = 0 if file_number is None else (file_number-1)*10
 
     if batch_number > 19:  # we only have 20 batches
