@@ -1,7 +1,7 @@
 import numpy as np
 
 from tqdm import tqdm
-from utils import check_array_length
+from helper import check_array_length
 
 import sys
 
