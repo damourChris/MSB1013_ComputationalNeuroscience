@@ -3,10 +3,18 @@ import pylab as plt
 
 from itertools import combinations
 
+from test import balanced_accuracy_single, balanced_accuracy_double
 
 import math
 import torch
 
+
+def check_array_length(arr1, arr2, custom_msg=None):
+    if len(arr1) != len(arr2):
+        if custom_msg is None:
+            raise ValueError("Arrays are not of the same length")
+        else:
+            raise ValueError(custom_msg)
 
 def percentile_distribution(samples, labels=None, figsize=(10, 10), percentiles=[5,95], ylims=[-1000,1000], return_percentile=False):
     """
@@ -207,3 +215,207 @@ def accuracy_per_layer(binary_layer_test_results,
     
     return fig, ax
 
+
+def plot_confusion_matrices_and_balanced_accuracies(
+        test_result,
+        population_names = ["$1_e$","$1_i$","$2_e$","$2_i$","$3_e$","$3_i$","$4_e$","$4_i$"]
+    ):
+    # Read results 
+    pred_layers = test_result['activated_layers']
+    true_layers = test_result['true_layers']
+    
+    num_layers = len(pred_layers[0]) 
+    
+    # Calculate how many rows/cols for heatmap
+    num_dims = int(np.ceil(np.sqrt(num_layers)))
+
+    # Setup main plots
+    fig = plt.figure(layout='constrained', figsize = (18, 9))
+    subfigs = fig.subfigures(1, 2, wspace = 0.07)
+
+    # Setup suplots
+    axLeft  = subfigs[0].subplots(num_dims, num_dims)
+    axRight = subfigs[1].subplots(       1,        1)
+
+    # confusion matrix labels
+    confusion_matrix_labels = [['True Negative',' False Negative'],['False Positive',' True Positive']]
+
+    # Calculate balanced accuracy 
+    balanced_accuracy, single_layer_success = balanced_accuracy_single(pred_layers, true_layers)
+    
+    images = []
+
+    for i in range(num_dims):
+        for j in range(num_dims):
+
+            # calculate current 1-D index
+            indx = i + j*num_dims
+
+            if(indx < num_layers):
+
+                # get data for current confusion matrix
+                heatmap_data = single_layer_success[indx]
+
+                # Plot heatmap of True/False positive/negative
+                im = axLeft[j,i].imshow(heatmap_data, cmap = "coolwarm")
+
+                # keep track of images (for colorbar)
+                images.append(im)
+
+                # Turn y labels vertically 
+                axLeft[j,i].tick_params(axis = "y", labelrotation = 90)
+
+                # Y axis
+                axLeft[j,i].set_yticks(list(range(2)))
+                axLeft[j,i].set_yticklabels(['Negative', 'Positive'])
+                axLeft[j,i].set_ylabel("Truth")
+
+                # X axis
+                axLeft[j,i].set_xticks(list(range(2)))
+                axLeft[j,i].set_xticklabels(['Negative', 'Positive'])
+                axLeft[j,i].set_xlabel("Prediction")
+
+                # Title 
+                axLeft[j,i].set_title("Population:" + population_names[indx] , fontsize=10)
+
+                # Plot values directly on heatmap for easier comprehension
+                for (k,l), value in np.ndenumerate(heatmap_data):
+                    axLeft[j,i].text(l, k     , round(value,3)                , ha = 'center', va = 'center', fontsize = 20)
+                    axLeft[j,i].text(l, k+0.25, confusion_matrix_labels[k][l] , ha = 'center', va = 'center', fontsize = 8)
+            else: 
+                axLeft[j,i].axis('off')
+
+    subfigs[0].colorbar(images[0], ax=axLeft, orientation='horizontal')
+    
+    
+    # Plot all the balanced accuracy measure for each population             
+    axRight.bar(list(range(len(pred_layers[0]) )), list(balanced_accuracy))
+
+    # Y axis
+    axRight.set_ylim([0,1])
+    axRight.set_yticks(np.arange(0,1.05,0.05))
+    axRight.set_ylabel("Balanced Accuracy")
+
+    # X axis
+    axRight.set_xlabel("Population")
+    axRight.set_xticklabels([''] + population_names)
+
+    
+
+    fig.suptitle("Confusion Matrices and Balanced Accuracy")
+
+    return fig
+
+def plot_confusion_matrices_and_balanced_accuracies_combinations(
+    test_result,
+    population_names = ["$1_e$","$1_i$","$2_e$","$2_i$","$3_e$","$3_i$","$4_e$","$4_i$"]
+    ):
+
+    # Read results 
+    pred_layers = test_result['activated_layers']
+    true_layers = test_result['true_layers']
+
+    # Get parameters
+    num_tests = len(pred_layers)
+    num_layers = len(pred_layers[0]) 
+
+    # Setup Figures 
+    fig = plt.figure(layout='constrained', figsize=(20, 10))
+    subfigs = fig.subfigures(1,2, wspace=0.02)
+
+    # Initialize sub figures
+    axLeft  = subfigs[0].subplots(num_layers, num_layers)
+    axRight = subfigs[1].subplots(1,1) 
+
+    
+
+    # Generate all 2-combinations of populations
+    combination_labels      = list(combinations(population_names, 2))
+
+    # confusion matrix labels
+    confusion_matrix_labels = [['True Negative',' False Negative'],['False Positive',' True Positive']]
+
+    combination_success, balanced_accuracy = balanced_accuracy_double(pred_layers, true_layers)
+
+    # Plot results from calcuations
+
+    # setup indx to keep track of confusion matrix label 
+    indx = 0
+    images = []
+
+    for i in range(num_layers):
+        for j in range(num_layers):
+
+            # Check if the cur plot(combination) has data associated if not turn off axis
+            #   note that this is not the most efficient since all the matrices are square to make life a bit easier so 
+            #   matrix ends up being lower-triangular -> this check is easy way of removing the extra unnescary plots
+            if(sum(sum(combination_success[(i,j)])) > 0):
+
+                # get data for current confusion matrix
+                heatmap_data = combination_success[(i,j)]
+
+                # Plot heatmap of True/False positive/negative
+                im = axLeft[j,i].imshow(heatmap_data, cmap="coolwarm")
+
+                # keep track of images (for colorbar)
+                images.append(im)
+
+
+                # Turn y labels vertically 
+                axLeft[j,i].tick_params(axis="y", labelrotation=90)
+
+                # Y axis
+                axLeft[j,i].set_yticks(list(range(2)))
+                axLeft[j,i].set_yticklabels(['Negative', 'Positive'], fontsize = 4)
+                axLeft[j,i].set_ylabel("Truth", fontsize = 6)
+
+                # X axis
+                axLeft[j,i].set_xticks(list(range(2)))
+                axLeft[j,i].set_xticklabels(['Negative', 'Positive'], fontsize = 4)
+                axLeft[j,i].set_xlabel("Prediction", fontsize = 6)
+
+                # Title 
+                axLeft[j,i].set_title(combination_labels[indx][0] + " | " + combination_labels[indx][1] , fontsize=10)
+                indx += 1
+
+                # Plot values directly on heatmap for easier comprehension
+                for (k,l), value in np.ndenumerate(heatmap_data):
+                    axLeft[j,i].text(l, k, round(value,2), ha='center', va='center', fontsize=8)
+                    axLeft[j,i].text(l, k+0.25, confusion_matrix_labels[k][l], ha='center', va='center', fontsize=4)
+
+            else: 
+                axLeft[j,i].axis('off')
+
+    subfigs[0].colorbar(images[0], ax=axLeft, orientation='vertical')
+    
+    # Plot balanced accuracy for each combinaiton of population
+    axRight.imshow(balanced_accuracy, cmap="coolwarm")
+
+    # Put text values
+    for (k,l), value in np.ndenumerate(balanced_accuracy):
+
+        # same check as earlier, since matrix is lower-triangular this check get makes sure we dont plot the extra zeros
+        if value > 0: 
+            axRight.text(l, k, round(value,3), ha='center', va='center', fontsize=17)                
+
+    # weird matplotlib magic where the labels are one behind, 
+    # so just add buffer label to allign the labels to the heat map
+    # ???
+
+    # Y axis
+    axRight.set_yticklabels([''] + population_names, fontsize = 18)
+    axRight.set_ylim([-.5,7.5])
+
+    # X axis
+    axRight.set_xticklabels([''] + population_names, fontsize = 18)
+
+    axRight.set_xlim([-.5,7.5])
+    axRight.invert_xaxis()
+
+
+    # Titles
+    subfigs[0].suptitle("Confusion Matrices", fontsize = 22)
+    subfigs[1].suptitle("Balanced Accuracy per combination", fontsize = 22)
+    fig.suptitle("Confusion Matrices and Balanced Accuracy double population detection", fontsize = 30)
+
+    return fig
