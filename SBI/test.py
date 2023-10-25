@@ -1,6 +1,7 @@
 import numpy as np
 
 from tqdm import tqdm
+from utils import check_array_length
 
 import sys
 
@@ -106,3 +107,88 @@ def print_stats(test_result):
     print("Number of predicted layers:   ", round(sum(test_result['predictions_binary'])))
     print("Predicted value (50th %tile): ", list(map(lambda x: round(x,2), map(float,test_result['percentile']))))
     print("Percentage of sample in range:", list(map(lambda x: round(x,2), map(float,test_result['value_in_range']))))
+
+def balanced_accuracy_single(pred_layers, true_layers):
+    
+    check_array_length(pred_layers, true_layers, custom_msg = "Prediction array and True arrays are not of the same length")
+    
+    # Get parameters
+    num_tests = len(pred_layers)
+    num_layers = len(pred_layers[0]) 
+
+    # Initiliaze Arrays
+    single_layer_success = np.zeros((num_layers, 2, 2))
+    balanced_accuracy    = np.zeros((num_layers))
+
+    # Iterate over each layer and calculate true/false positives/negatives rate and balanced accuracy
+    for val in range(num_layers):    
+
+        # False positive
+        FP = sum([1 if (pred_layers[i][val] == 1 and true_layers[i][val] == 0) else 0 for i in range(num_tests)])/num_tests
+
+        # False negative
+        FN = sum([1 if (pred_layers[i][val] == 0 and true_layers[i][val] == 1) else 0 for i in range(num_tests)])/num_tests
+
+        # True positive
+        TP = sum([1 if (pred_layers[i][val] == 1 and true_layers[i][val] == 1) else 0 for i in range(num_tests)])/num_tests
+
+        # True negative 
+        TN = sum([1 if (pred_layers[i][val] == 0 and true_layers[i][val] == 0) else 0 for i in range(num_tests)])/num_tests
+
+        # Calculate balanced accuracy 
+        balanced_accuracy[val]    = 1/2*(TP / ( TP + FP ) + TN / ( TN + FN ) )
+
+        # Store results for confusion matrix
+        single_layer_success[val] = [[TN, FN],[FP, TP]] 
+
+    return balanced_accuracy, single_layer_success
+
+def balanced_accuracy_double(pred_layers, true_layers):
+    
+    check_array_length(pred_layers, true_layers, custom_msg = "Prediction array and True arrays are not of the same length")
+
+    # Get parameters
+    num_tests = len(pred_layers)
+    num_layers = len(pred_layers[0])
+    
+    
+    # Initliaze matrix for balanced accuracy calculations
+    combination_success  = np.zeros((num_layers, num_layers, 2, 2))
+    balanced_accuracy = np.zeros((num_layers,num_layers))
+    
+    
+    # Iterate throuch each combinations and calculate true/false positives/negatives rate and balanced accuracy
+    for cur_pair in combinations(range(num_layers ),2):    
+
+        pair = [cur_pair[0],cur_pair[1]]
+
+        FP = []
+        FN = []
+        TP = []
+        TN = []
+
+        for val in range(len(pair)): 
+
+            # False positive
+            FP += [1 if (pred_layers[i][pair][val] == 1 and true_layers[i][pair][val] == 0) else 0 for i in range(num_tests)]
+
+            # False negative
+            FN += [1 if (pred_layers[i][pair][val] == 0 and true_layers[i][pair][val] == 1) else 0 for i in range(num_tests)]
+
+            # True positive
+            TP += [1 if (pred_layers[i][pair][val] == 1 and true_layers[i][pair][val] == 1) else 0 for i in range(num_tests)]
+
+            # True negative 
+            TN += [1 if (pred_layers[i][pair][val] == 0 and true_layers[i][pair][val] == 0) else 0 for i in range(num_tests)]
+
+        FP = sum(FP)/(2*num_tests)
+        FN = sum(FN)/(2*num_tests)
+        TP = sum(TP)/(2*num_tests)
+        TN = sum(TN)/(2*num_tests)
+
+        # Calculate balanced accuracy 
+        balanced_accuracy[cur_pair]   = 1/2*(TP / ( TP + FP ) + TN / (TN + FN) )
+
+        # Store results for confusion matrix
+        combination_success[cur_pair] = [[TN, FN],[FP, TP]] 
+    return combination_success, balanced_accuracy
