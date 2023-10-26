@@ -221,7 +221,7 @@ def plot_confusion_matrices_and_balanced_accuracies(
         population_names = ["$1_e$","$1_i$","$2_e$","$2_i$","$3_e$","$3_i$","$4_e$","$4_i$"]
     ):
     # Read results 
-    pred_layers = test_result['activated_layers']
+    pred_layers = test_result['predicted_layers']
     true_layers = test_result['true_layers']
     
     num_layers = len(pred_layers[0]) 
@@ -312,7 +312,7 @@ def plot_confusion_matrices_and_balanced_accuracies_combinations(
     ):
 
     # Read results 
-    pred_layers = test_result['activated_layers']
+    pred_layers = test_result['predicted_layers']
     true_layers = test_result['true_layers']
 
     # Get parameters
@@ -419,3 +419,14 @@ def plot_confusion_matrices_and_balanced_accuracies_combinations(
     fig.suptitle("Confusion Matrices and Balanced Accuracy double population detection", fontsize = 30)
 
     return fig
+
+
+
+
+
+
+
+
+
+def get_layers_with_pop_active(test_result, pop):
+    return np.where(np.array([1 if test_result['true_layers'][i][pop] > 0 else 0 for i in range(len(test_result['true_layers']))]) > 0)[0]
