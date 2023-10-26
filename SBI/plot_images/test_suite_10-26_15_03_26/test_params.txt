@@ -1,0 +1,4 @@
+Threshold: 0.2
+Tolerance: 0.5
+Activation Threshold: 10.0
+Number of Samples: 5000
