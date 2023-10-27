@@ -420,12 +420,76 @@ def plot_confusion_matrices_and_balanced_accuracies_combinations(
 
     return fig
 
+def compute_average_accuracy(test_results):
+    
+    overall_accuracy = np.zeros((len(test_results) ))
+    
+    for index, results in enumerate(test_results):
+        
+        balanced_accuracy , _ = balanced_accuracy_single(results['predicted_layers'], results['true_layers'])
+        overall_accuracy[index] = sum(balanced_accuracy)/len(balanced_accuracy)
+    
+    return overall_accuracy
 
+def plot_average_accuracy(test_results, figsize = (10,10) ):
+    fig, ax = plt.subplots(1 , 1, figsize = figsize)
+    general_accuracy = compute_average_accuracy(test_results_arr)
+    
+    ax.set_ylim([0,1])
+    ax.set_ylabel("Balanced Accuracy")
+    
+    ax.set_xticks(range(1,len(test_results)+1))
+    ax.set_xlabel("Model")
+    
+    ax.set_title("Accuracy per Model")
+        
+    ax.bar(range(1,len(test_results)+1), general_accuracy)
+    
+    return fig, ax
 
+fig, ax = plot_average_accuracy(test_results_arr)
+plt.show()
 
-
-
-
+def plot_stats(test_result, figsize=(20,20)):
+    fig = plt.figure(layout='constrained', figsize=(20, 10))
+    subfigs = fig.subfigures(1,2, wspace=0.02)           
+    
+    ax11 = subfigs[0].subplots(2,2)
+               
+    ax11[0,0].bar(range(8), test_result['predicted_layers'])
+    ax11[0,0].set_xlabel("Population")
+    ax11[0,0].set_title("Binary Prediction")
+    
+    ax11[0,1].bar(range(8), test_result['true_layers'])
+    ax11[0,1].set_xlabel("Population")
+    ax11[0,1].set_title("Truth")
+    subfigs[0].suptitle("Population Activation Prediction")
+    
+    
+    # ax12 = subfigs[0,1].subplots(2,1)
+               
+    ax11[1,0].bar(range(8), test_result['predicted_values'])
+    ax11[1,0].set_ylim([0,500])
+    ax11[1,0].set_title("Value Prediction")
+    ax11[1,0].set_xlabel("Population")
+    
+    ax11[1,1].bar(range(8), test_result['true_values'])
+    ax11[1,1].set_ylim([0,500])
+    ax11[1,1].set_title("Truth")
+    ax11[1,1].set_xlabel("Population")
+    
+    # subfigs[0,1].suptitle("Population Activation Level Prediction")
+    
+    
+    ax21 = subfigs[1].subplots(2,1)
+               
+    ax21[0].bar(range(8), test_result['values_in_range'])
+    ax21[0].set_title("Percentage of samples in range of true value")
+    
+    ax21[1].bar(range(8), test_result['mean_per_layer'], yerr=test_result['std_per_layer'])
+    ax21[1].set_title("Average of sample value")
+    
+    return fig
 
 
 def get_layers_with_pop_active(test_result, pop):
