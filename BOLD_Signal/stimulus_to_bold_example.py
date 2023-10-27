@@ -32,7 +32,7 @@ if __name__ == '__main__':
     width, height = get_plt_size(1.0)
 
     colors = plt.cm.Spectral(np.linspace(0, 1, 4))
-    plt.figure(figsize=(width, height*1.5))
+    plt.figure(figsize=(width, height))
     plt.suptitle("Estimated parameters of the linear regression")
     plt.subplot(311)
     plt.gca().set_prop_cycle(plt.cycler('color', plt.cm.Spectral(np.linspace(0, 1, 4))))
@@ -54,7 +54,7 @@ if __name__ == '__main__':
     plt.savefig('fig/signal_betas_example.pdf', bbox_inches='tight', transparent=True, dpi=300)
 
     fig = plt.figure()
-    plt.figure(figsize=(width, height*1.6))
+    plt.figure(figsize=(width, height*1.5))
     plt.suptitle("Predicted BOLD response of the Balloon-Windkessel model")
     for layer in range(4):
         ax1 = plt.subplot(4, 1, layer + 1)
@@ -63,7 +63,7 @@ if __name__ == '__main__':
 
         neural_activity_line,  = ax1.plot(t, neural_activity_normalised[::int(2/0.001), layer], label="Neural activity",
                                           color='C0')
-        ax1.set_yticks(np.arange(0, np.max(neural_activity_normalised)*1.2, 0.2))
+        ax1.set_yticks(np.arange(0, np.max(neural_activity_normalised)*1.2, 0.25))
         ax1.tick_params(axis='y', labelcolor='C0')
         ax1.set_ylabel("Strength of activity")
         ax1_ylim_min = -0.02
