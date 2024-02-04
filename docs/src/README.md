@@ -4,7 +4,7 @@ This project aims to infer to infer the different layers that were given as inpu
 
 # Contributing
 
-This project originates from the MSB1013 - Computational Neuroscience course of 2023. It is being contributed by all attendees of the course. 
+This project originates from the MSB1013 - Computational Neuroscience course of 2023. Find the list of contributors [here](/misc/contributors.md).
 
 # License
 
