@@ -1,1 +1,0 @@
-# Simulating a multi-layered neuronal model
