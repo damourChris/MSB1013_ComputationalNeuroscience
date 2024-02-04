@@ -5,8 +5,7 @@
         <img alt="Docs" src="https://img.shields.io/badge/docs-stable-green">
     </a>
     <a href="https://github.com/damourChris/MSB1013_ComputationalNeuroscience/blob/master/LICENSE">
-        <img alt="Github License" src="https://img.shields.io/github/license/damourChris/MSB1013_ComputationalNeuroscience
-    ">
+        <img alt="Github License" src="https://img.shields.io/github/license/damourChris/MSB1013_ComputationalNeuroscience">
     </a>
 </p>
 
