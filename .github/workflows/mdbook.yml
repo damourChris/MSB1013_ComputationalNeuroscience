@@ -35,7 +35,7 @@ jobs:
           cargo install --version ${MDBOOK_VERSION} mdbook
       - name: Install mdBook Plugins
         run: |
-          cargo install --version ${MDBOOK_VERSION} mdbook-footnote 
+          cargo install mdbook-footnote 
       - name: Setup Pages
         id: pages
         uses: actions/configure-pages@v4
