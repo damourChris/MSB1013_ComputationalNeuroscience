@@ -2,12 +2,15 @@
 ## 2023 
 ## MSB1013 - Computational Neuroscience
 ## Maastricht University
-| | |
-|:--:|:--:|
-| Docs | ![Docs](https://img.shields.io/badge/docs-stable?color=green&link=https%3A%2F%2Fdamourchris.github.io%2FMSB1013_ComputationalNeuroscience%2F) |
-| GitHub Forks | ![GitHub forks](https://img.shields.io/github/forks/damourChris/MSB1013_ComputationalNeuroscience) |
-| GitHub Stars | ![GitHub stars](https://img.shields.io/github/stars/damourChris/MSB1013_ComputationalNeuroscience) |
-| License | ![GitHub license](https://img.shields.io/github/license/damourChris/MSB1013_ComputationalNeuroscience) |
+
+<p align="center">
+  <a href="https://damourchris.github.io/MSB1013_ComputationalNeuroscience/">
+    <img alt="Docs" src="https://img.shields.io/badge/docs-stable-green">
+  </a>
+  <a href="https://github.com/damourchris/MSB1013_ComputationalNeuroscience/blob/main/LICENSE">
+    <img alt="GitHub License" src="https://img.shields.io/github/license/damourChris/MSB1013_ComputationalNeuroscience">
+  </a>
+</p>
 
 # Installation 
 
