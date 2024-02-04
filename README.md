@@ -4,10 +4,10 @@
 ## Maastricht University
 | | |
 |:--:|:--:|
-| Docs | ![Docs](https://img.shields.io/badge/Docs?color=green&link=https%3A%2F%2Fdamourchris.github.io%2FMSB1013_ComputationalNeuroscience%2F) |
+| Docs | ![Docs](https://img.shields.io/badge/docs-stable?color=green&link=https%3A%2F%2Fdamourchris.github.io%2FMSB1013_ComputationalNeuroscience%2F) |
 | GitHub Forks | ![GitHub forks](https://img.shields.io/github/forks/damourChris/MSB1013_ComputationalNeuroscience) |
 | GitHub Stars | ![GitHub stars](https://img.shields.io/github/stars/damourChris/MSB1013_ComputationalNeuroscience) |
-| GitHub License | ![GitHub license](https://img.shields.io/github/license/damourChris/MSB1013_ComputationalNeuroscience) |
+| License | ![GitHub license](https://img.shields.io/github/license/damourChris/MSB1013_ComputationalNeuroscience) |
 
 # Installation 
 
