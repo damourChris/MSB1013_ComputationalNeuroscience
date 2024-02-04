@@ -18,9 +18,17 @@ extracted from {{footnote: Tom Binzegger, Rodney J Douglas, and Kevan AC Martin.
 circuit of cat primary visual cortex”. In: Journal of Neuroscience 24.39 (2004), pp. 8441–
 8453.}}. As for the connections, the excitatory (black) and inhibitory (grey) represent
 the connections between populations.
+
+<div align="center">
+
+![Model Definition](https://raw.githubusercontent.com/damourChris/MSB1013_ComputationalNeuroscience/ad1433eb748d0e7f23d0cc2a3cbe4d0992c2fbe0/docs/assets/model_definition_pojtnasetal.gif)
+
 Figure 1: Model Definition. Extracted from Potjans et al. {{footnote: Tobias C Potjans and Markus Diesmann. “The cell-type specific cortical microcircuit: relating
 structure and activity in a full-scale spiking network model”. In: Cerebral cortex 24.3
 (2014), pp. 785–806.}}
+
+</div>
+
 Once all the general parameters have been established, we need to specify the simulation parameters.
 The simulation consists of three different parts. First, we have the pre-stimulation period
 of 0.5 seconds of no-input simulation. Then, we continuously stimulate a specific amplitude to
