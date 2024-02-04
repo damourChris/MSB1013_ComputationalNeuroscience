@@ -8,7 +8,7 @@ This project originates from the MSB1013 - Computational Neuroscience course of 
 
 # License
 
-The source code and documentation are realeased under the Mozilla Public License v2.0. 
+The source code and documentation are realeased under the MIT License. 
 
 
 
