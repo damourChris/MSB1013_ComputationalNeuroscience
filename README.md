@@ -1,13 +1,24 @@
 # Infering a multi-layered neural input with simulation-based Inference and the BOLD signal
+## 2023 
 ## MSB1013 - Computational Neuroscience
+## Maastricht University
 
+# Installation 
 
+1. Create and Activate virtual environment
+2. Install requirements 
 
-# Simulating the neuronal dynamics
+## With docker
 
+1. A docker image is available with all the dependencies required to run the code: 
 
-# Deriving the BOLD signal
+TODO: publish docker image 
 
+# Usage 
 
-# Running Simulation Based Inference with the sbi_toolbox
-
+1. Generate Populations data 
+2. Run simulations
+3. Train density estimator
+4. Estimate posterior
+5. Plot results
+6. Run Benchmark 
