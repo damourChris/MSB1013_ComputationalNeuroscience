@@ -3,5 +3,5 @@ matplotlib==3.8.0
 scipy==1.11.3
 jupyter==1.0.0
 sbi==0.21.0
-torch==2.2.0
+torch==2.7.0
 
